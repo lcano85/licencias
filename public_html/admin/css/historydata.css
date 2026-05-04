@@ -1,0 +1,66 @@
+.history-item {
+    border-left: 2px dashed #dee2e6;
+    padding-left: 20px;
+    margin-left: 10px;
+}
+.history-badge {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    position: absolute;
+    left: -16px;
+    top: 0;
+}
+.change-item {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    padding: 8px;
+    margin-bottom: 5px;
+}
+.old-value {
+    color: #dc3545;
+    text-decoration: line-through;
+    margin-right: 5px;
+}
+.new-value {
+    color: #28a745;
+    margin-left: 5px;
+}
+.commentBox{
+    background-color: #f1f1f1;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+.commentBox:last-child {
+    margin-bottom: 0 !important;
+}
+.commentBox a {
+    color: #d95c28;
+    text-decoration: underline;
+    font-weight: 600;
+}
+.commentBox span {
+    margin-right: 8px;
+}
+.comment-titleBOX {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.comment-titleBOX h6{
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+.commentBox.commentBoxRight .comment-titleBOX {
+    flex-direction: row-reverse;
+}
+.commentBoxRight{
+    text-align: right;
+}

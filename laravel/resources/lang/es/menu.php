@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'dashboard' => 'Tablero',
+    'roles' => 'Roles',
+    'permissions' => 'Permisos',
+    'users' => 'Usuarios',
+    'projects' => 'Proyectos',
+    'activities' => 'Actividades',
+    'clients' => 'Clientes',
+    'assign_by_role' => 'Asignar por Rol',
+    'calendar' => 'Calendario',
+    'calendar_list' => 'Lista',
+    'client_categories' => 'Categorías de Clientes',
+    'category' => 'Categoría',
+    'sub_category' => 'Subcategoría',
+    'use_types' => 'Tipos de Uso',
+    'licenses_agreements' => 'Licencias / Acuerdos',
+    'budget' => 'Presupuesto',
+    'billing-list' => 'Lista de facturación',
+    'basic-info-status' => 'Estado de información básica',
+    'budget_criterion' => 'Criterios',
+    'assign_settlement' => 'Asignar usuario de liquidación',
+    'invoice_consecutive' => 'Factura consecutiva',
+    'receipt_consecutive' => 'Recibo consecutivo',
+];

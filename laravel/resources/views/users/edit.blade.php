@@ -1,0 +1,72 @@
+@extends('layouts.app')
+@section('title', $pageTitle)
+@section('styles')
+@stop
+
+@section('content')
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">{{ __('User Edit') }}</h4>
+            </div>
+            <div class="card-body">
+                <div class="live-preview">
+                    <form id="roleDetails" method="POST" action="{{ route('user.update', $user->id) }}" enctype="multipart/form-data">
+                        @csrf
+                        @method('POST')
+                        <div class="row gy-4 mb-2">
+                            <div class="col-xxl-6 col-md-6">
+                                <label for="name" class="form-label">{{ __('Username') }}</label>
+                                <input type="text" class="form-control" name="name" id="name" required @if(!empty($user->name)) value="{{$user->name}}" @endif>
+                                @error('name') <span class="text-danger">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="col-xxl-6 col-md-6">
+                                <label for="email" class="form-label">{{ __('Email') }}</label>
+                                <input type="text" class="form-control" name="email" id="email" required @if(!empty($user->email)) value="{{$user->email}}" @endif>
+                                @error('email') <span class="text-danger">{{ $message }}</span> @enderror
+                            </div>
+                        </div>
+
+                        <div class="row gy-4 mb-2">
+                            <div class="col-xxl-12 col-md-12">
+                                <label for="roles" class="form-label">{{ __('Roles') }}</label>
+                                <select class="form-control" name="roles" id="roles">
+                                    <option value="">{{ __('Please select role') }}</option>
+                                    @if(!empty($roles))
+                                        @foreach($roles as $value => $label)
+                                            <option value="{{ $value }}" {{ isset($userRole[$value]) ? 'selected' : ''}} >{{ \App\Support\UiText::role($value) }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                                @error('role') <span class="text-danger">{{ $message }}</span> @enderror
+                            </div>
+                        </div>
+
+                        <div class="row gy-4 mb-2">
+                            <div class="col-xxl-12 col-md-12">
+                                <label for="status" class="form-label">{{ __('Status') }}</label>
+                                <select name="status" id="status" class="form-control">
+                                    <option value="1" {{ (int) $user->status === 1 ? 'selected' : '' }}>{{ __('Active') }}</option>
+                                    <option value="0" {{ (int) $user->status === 0 ? 'selected' : '' }}>{{ __('Inactive') }}</option>
+                                </select>
+                                @error('status') <span class="text-danger">{{ $message }}</span> @enderror
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">{{ __('Update User') }}</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('script')
+@stop
