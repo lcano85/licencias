@@ -136,31 +136,7 @@ class CalendarController extends Controller {
 
 
     public function getEvents() {
-        $events = Calendar::all()->map(function ($event) {
-            $category = $this->mapCategory($event->type);
-            $class    = $this->getClassByType($category);
-            $guests = [];
-
-            if (!empty($event->guests)) {
-                $decoded = json_decode($event->guests, true);
-                if (json_last_error() === JSON_ERROR_NONE) {
-                    $guests = is_array($decoded) ? $decoded : [$decoded];
-                } else {
-                    $guests = explode(',', $event->guests);
-                }
-            }
-            return [
-                'id'          => $event->id,
-                'title'       => $event->schedule_title,
-                'start'       => $event->start,
-                'end'         => $event->end,
-                'location'    => $event->location,
-                'description' => $event->description,
-                'guests'      => array_map('intval', $guests),
-                'className'   => $class,
-                'category'    => $event->type,
-            ];
-        });
+        $events = Calendar::all()->map(fn ($event) => $this->formatCalendarEvent($event));
         return response()->json($events);
     }
 
@@ -189,7 +165,7 @@ class CalendarController extends Controller {
         ]);
 
         $userID = Auth::user()->id;
-        $assign_byIds = implode(',', $data['guests']);
+        $assign_byIds = isset($data['guests']) && is_array($data['guests']) ? implode(',', $data['guests']) : null;
 
         $calendar = new Calendar();
         $calendar->schedule_title = $data['title'];
@@ -201,7 +177,7 @@ class CalendarController extends Controller {
         $calendar->creator = $userID;
         $calendar->guests = $assign_byIds ?? null;
         if($calendar->save()){
-            return response()->json(['status' => 'success','event' => $calendar]);
+            return response()->json(['status' => 'success','event' => $this->formatCalendarEvent($calendar)]);
         } else {
             return response()->json(['status' => 'error','event' => $calendar]);
         }
@@ -219,7 +195,7 @@ class CalendarController extends Controller {
         ]);
 
         $userID = Auth::user()->id;
-        $assign_byIds = implode(',', $data['guests']);
+        $assign_byIds = isset($data['guests']) && is_array($data['guests']) ? implode(',', $data['guests']) : null;
 
         $calendar = Calendar::findOrFail($schedule);
         $calendar->schedule_title = $data['title'];
@@ -230,7 +206,7 @@ class CalendarController extends Controller {
         $calendar->description = $data['description'] ?? null;
         $calendar->guests = $assign_byIds ?? null;
         if($calendar->save()){
-            return response()->json(['status' => 'success','event' => $calendar]);
+            return response()->json(['status' => 'success','event' => $this->formatCalendarEvent($calendar)]);
         } else {
             return response()->json(['status' => 'error','event' => $calendar]);
         }
@@ -263,6 +239,33 @@ class CalendarController extends Controller {
             '4' => 'Deadline',
             default => 'Activity'
         };
+    }
+
+    private function formatCalendarEvent(Calendar $event): array {
+        $category = $this->mapCategory($event->type);
+        $class = $this->getClassByType($category);
+        $guests = [];
+
+        if (!empty($event->guests)) {
+            $decoded = json_decode($event->guests, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $guests = is_array($decoded) ? $decoded : [$decoded];
+            } else {
+                $guests = explode(',', $event->guests);
+            }
+        }
+
+        return [
+            'id'          => $event->id,
+            'title'       => $event->schedule_title,
+            'start'       => $event->start,
+            'end'         => $event->end,
+            'location'    => $event->location,
+            'description' => $event->description,
+            'guests'      => array_map('intval', array_filter($guests, fn ($guest) => $guest !== '')),
+            'className'   => $class,
+            'category'    => $event->type,
+        ];
     }
 
     public function upload(Request $request) {

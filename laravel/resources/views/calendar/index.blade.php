@@ -11,6 +11,21 @@
     .fc-daygrid-event-dot {
         display: none;
     }
+    .fc-daygrid-event .fc-event-main-frame {
+        align-items: center;
+        display: flex;
+        gap: 4px;
+        min-width: 0;
+    }
+    .fc-daygrid-event .fc-event-time {
+        flex: 0 0 auto;
+    }
+    .fc-daygrid-event .fc-event-title {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 </style>
 @stop
 
