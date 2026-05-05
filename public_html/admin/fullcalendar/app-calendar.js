@@ -23,6 +23,65 @@ class CalendarSchedule {
           return key;
      }
 
+     getClassByCategory(category) {
+          const classes = {
+               1: 'bg-primary',
+               2: 'bg-info',
+               3: 'bg-success',
+               4: 'bg-warning'
+          };
+
+          return classes[Number(category)] || 'bg-secondary';
+     }
+
+     normalizeServerEvent(event, formData) {
+          const category = event?.category || event?.type || formData?.get('category');
+
+          return {
+               id: event?.id ? String(event.id) : undefined,
+               title: event?.title || event?.schedule_title || formData?.get('title') || '',
+               start: event?.start || formData?.get('due_date') || null,
+               end: event?.end || null,
+               location: event?.location || formData?.get('location') || '',
+               description: event?.description || formData?.get('description') || '',
+               guests: event?.guests || formData?.getAll('guests[]') || [],
+               className: event?.className || this.getClassByCategory(category),
+               category: category
+          };
+     }
+
+     upsertCalendarEvent(eventData) {
+          if (!eventData?.id) {
+               return;
+          }
+
+          const existingEvent = this.calendarObj.getEventById(eventData.id);
+
+          if (existingEvent) {
+               existingEvent.setProp('title', eventData.title);
+               existingEvent.setProp('classNames', [eventData.className]);
+               existingEvent.setStart(eventData.start);
+               existingEvent.setEnd(eventData.end);
+               existingEvent.setExtendedProp('location', eventData.location);
+               existingEvent.setExtendedProp('description', eventData.description);
+               existingEvent.setExtendedProp('guests', eventData.guests);
+               existingEvent.setExtendedProp('category', eventData.category);
+               return;
+          }
+
+          this.calendarObj.addEvent(eventData);
+     }
+
+     refreshCalendar() {
+          this.calendarObj.getEvents().forEach((event) => {
+               if (!event.source) {
+                    event.remove();
+               }
+          });
+          this.calendarObj.refetchEvents();
+          this.calendarObj.render();
+     }
+
      onEventClick(info) {
           this.formEvent?.reset();
           this.formEvent?.classList.remove('was-validated');
@@ -218,6 +277,11 @@ class CalendarSchedule {
               events: {
                   url: "/calendar/events",
                   method: "GET",
+                  extraParams: function () {
+                      return {
+                          _: Date.now()
+                      };
+                  },
                   failure: function () {
                       Swal.fire({
                            icon: 'error',
@@ -273,9 +337,11 @@ class CalendarSchedule {
                       },
                       success: function (response) {
                           if (response.status === 'success') {
+                              const savedEvent = self.normalizeServerEvent(response.event, formData);
+
                               if (self.selectedEvent && self.selectedEvent.id) {
-                                   // self.selectedEvent.setProp('title', response.event.title);
-                                   // self.selectedEvent.setProp('classNames', [self.getClassByType(response.event.type)]);
+                                   // Event was updated
+                                   self.upsertCalendarEvent(savedEvent);
                                    Swal.fire({
                                         icon: 'success',
                                         title: self.trans('Updated!'),
@@ -284,12 +350,14 @@ class CalendarSchedule {
                                         showConfirmButton: false
                                    });
                               } else {
-                                   // self.calendarObj.addEvent({
-                                   //      id: response.event.id,
-                                   //      title: response.event.title,
-                                   //      start: response.event.start,
-                                   //      className: self.getClassByType(response.event.type)
-                                   // });
+                                   // Event was created
+                                   if (self.isExternalEvent && self.selectedEvent) {
+                                        try {
+                                             self.selectedEvent.remove();
+                                        } catch (err) {
+                                             console.log('Could not remove external event');
+                                        }
+                                   }
                                    Swal.fire({
                                         icon: 'success',
                                         title: self.trans('Added!'),
@@ -298,6 +366,12 @@ class CalendarSchedule {
                                         showConfirmButton: false
                                    });
                               }
+
+                              // Refresh calendar to sync with server
+                              self.isExternalEvent = false;
+                              self.selectedEvent = null;
+                              self.refreshCalendar();
+
                               self.modal.hide();
                           } else {
                               Swal.fire({
@@ -349,6 +423,9 @@ class CalendarSchedule {
                                              timer: 2000,
                                              showConfirmButton: false
                                         });
+                                        // Refresh calendar to sync deletion with server
+                                        self.calendarObj.refetchEvents();
+                                        self.modal.hide();
                                    }
                               }
                          });
@@ -359,18 +436,15 @@ class CalendarSchedule {
 
           const modalEl = document.getElementById('event-modal');
           modalEl.addEventListener('hidden.bs.modal', function () {
+               // Clean up external events when modal closes
                if (self.isExternalEvent && self.selectedEvent) {
-                    const t = self.selectedEvent.title || '';
-                    if (!t.trim()) {
-                         try {
-                              self.selectedEvent.remove();
-                         } catch (err) {}
-                    }
-                    self.selectedEvent = null;
+                    try {
+                         self.selectedEvent.remove();
+                    } catch (err) {}
                     self.isExternalEvent = false;
-               } else {
-                    self.selectedEvent = null;
                }
+               self.selectedEvent = null;
+               self.newEventData = null;
           });
      }
 
