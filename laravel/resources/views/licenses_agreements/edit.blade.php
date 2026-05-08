@@ -472,6 +472,57 @@ document.addEventListener('DOMContentLoaded', function() {
         return value.replace(/\./g, '').replace(',', '.');
     }
 
+    function parseCurrency(value) {
+        const parsed = parseFloat(unformatCurrency(value || ''));
+        return Number.isNaN(parsed) ? 0 : parsed;
+    }
+
+    function formatCurrencyFromNumber(value) {
+        if (!Number.isFinite(value)) {
+            value = 0;
+        }
+        let formatted = value.toFixed(2).replace('.', ',');
+        let parts = formatted.split(',');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        return parts.join(',');
+    }
+
+    function billingMonths() {
+        const frequency = (document.getElementById('billing_frequency')?.value || '').toLowerCase();
+        const beginMonth = parseInt(document.getElementById('begin_month')?.value || '', 10);
+        const beginYear = parseInt(document.getElementById('begin_year')?.value || '', 10);
+        const finishMonth = parseInt(document.getElementById('finish_month')?.value || '', 10);
+        const finishYear = parseInt(document.getElementById('finish_year')?.value || '', 10);
+
+        if (beginMonth && beginYear && finishMonth && finishYear) {
+            return Math.max(1, ((finishYear - beginYear) * 12) + (finishMonth - beginMonth) + 1);
+        }
+
+        if (frequency === 'quarterly' || frequency === '2') return 3;
+        if (frequency === 'annual' || frequency === '3') return 12;
+        if (frequency === 'one-time payment' || frequency === '4') return 1;
+        return 12;
+    }
+
+    function recalculateLicenseAmounts(changedField = '') {
+        const monthlyInput = document.getElementById('monthlyValue');
+        const annualInput = document.getElementById('annualValue');
+        if (!monthlyInput || !annualInput) return;
+
+        const months = billingMonths();
+        const monthly = parseCurrency(monthlyInput.value);
+        const annual = parseCurrency(annualInput.value);
+
+        if (changedField === 'annual' && annual > 0 && monthly === 0) {
+            monthlyInput.value = formatCurrencyFromNumber(annual / months);
+            return;
+        }
+
+        if (monthly > 0) {
+            annualInput.value = formatCurrencyFromNumber(monthly * months);
+        }
+    }
+
     const currencyInputs = document.querySelectorAll('.currency-input');
     currencyInputs.forEach(input => {
         input.addEventListener('input', function(e) {
@@ -485,6 +536,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 cursorPosition += lengthDiff;
             }
             this.setSelectionRange(cursorPosition, cursorPosition);
+            recalculateLicenseAmounts(this.id === 'annualValue' ? 'annual' : 'monthly');
         });
 
         input.addEventListener('focus', function() {
@@ -502,6 +554,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.value = parts.join(',');
                 }
             }
+            recalculateLicenseAmounts(this.id === 'annualValue' ? 'annual' : 'monthly');
         });
 
         input.addEventListener('keydown', function(e) {
@@ -517,6 +570,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    ['billing_frequency', 'begin_month', 'begin_year', 'finish_month', 'finish_year'].forEach(id => {
+        const field = document.getElementById(id);
+        if (field) {
+            field.addEventListener('change', () => recalculateLicenseAmounts());
+        }
+    });
+
+    recalculateLicenseAmounts();
 
     // Date validation
     const startDateInput = document.getElementById('startDate');
