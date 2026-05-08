@@ -989,29 +989,23 @@ $(document).ready(function() {
     }
 
     function updateIncomePaymentSummaryDisplay() {
-        const incomeAmount = parseFormattedNumber($('#incomeAmount').val() || '0');
-        const otherAmounts = parseFormattedNumber($('#incomeOtherAmounts').val() || '0');
-        const totalPaid = incomeAmount + otherAmounts;
-
-        let allocated = 0;
-        $('.applyAmount').each(function() {
-            allocated += parseFormattedNumber($(this).val() || '0');
-        });
-
-        const currentPayment = allocated > 0 ? allocated : totalPaid;
-        const rcBalance = Math.max(totalPaid - currentPayment, 0);
+        const container = $('#invoice-details-container');
+        const hasInvoice = container.length && container.data('total-value') !== undefined;
+        const invoiceTotal = hasInvoice ? Number(container.data('total-value') || 0) : 0;
+        const remainingBalance = hasInvoice ? Number(container.data('total-balance') || 0) : 0;
+        const totalPaid = parseFormattedNumber($('#incomeAmount').val() || '0') + parseFormattedNumber($('#incomeOtherAmounts').val() || '0');
 
         if ($('#incomeRemainingBalance').length) {
-            $('#incomeRemainingBalance').val(formatSummaryCurrency(rcBalance));
+            $('#incomeRemainingBalance').val(formatSummaryCurrency(remainingBalance));
         }
         if ($('#summaryInvoiceTotalDisplay').length) {
-            $('#summaryInvoiceTotalDisplay').text(formatSummaryCurrency(totalPaid));
+            $('#summaryInvoiceTotalDisplay').text(formatSummaryCurrency(invoiceTotal));
         }
         if ($('#summaryRemainingBalanceDisplay').length) {
-            $('#summaryRemainingBalanceDisplay').text(formatSummaryCurrency(rcBalance));
+            $('#summaryRemainingBalanceDisplay').text(formatSummaryCurrency(remainingBalance));
         }
         if ($('#totalPaidDisplay').length) {
-            $('#totalPaidDisplay').text(formatSummaryCurrency(currentPayment));
+            $('#totalPaidDisplay').text(formatSummaryCurrency(totalPaid));
         }
     }
 

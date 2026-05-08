@@ -10,56 +10,50 @@
     .table tbody tr:last-child td {
         border-bottom: inherit;
     }
-
     .table thead {
         background: #f1f1f1;
     }
 
-    #budgetData_wrapper>.row:nth-of-type(3) {
+    #budgetData_wrapper > .row:nth-of-type(3) {
         margin-top: 15px !important;
     }
-
-    #budgetData th,
+    #budgetData th, 
     #budgetData td {
         white-space: normal !important;
         word-break: break-word;
     }
 
-    #registerInvoice_wrapper>.row:nth-of-type(3) {
+    #registerInvoice_wrapper > .row:nth-of-type(3) {
         margin-top: 15px !important;
     }
-
-    #registerInvoice th,
+    #registerInvoice th, 
     #registerInvoice td {
         white-space: normal !important;
         word-break: break-word;
     }
 
-    #incomeTable_wrapper>.row:nth-of-type(3) {
+    #incomeTable_wrapper > .row:nth-of-type(3) {
         margin-top: 15px !important;
     }
-
-    #incomeTable th,
+    #incomeTable th, 
     #incomeTable td {
         white-space: normal !important;
         word-break: break-word;
     }
 
-    #validationsTable_wrapper>.row:nth-of-type(3) {
+    #validationsTable_wrapper > .row:nth-of-type(3) {
         margin-top: 15px !important;
     }
-
-    #validationsTable th,
+    #validationsTable th, 
     #validationsTable td {
         white-space: normal !important;
         word-break: break-word;
     }
 
-    #validatedIncomesTable_wrapper>.row:nth-of-type(3) {
+    #validatedIncomesTable_wrapper > .row:nth-of-type(3) {
         margin-top: 15px !important;
     }
-
-    #validatedIncomesTable th,
+    #validatedIncomesTable th, 
     #validatedIncomesTable td {
         white-space: normal !important;
         word-break: break-word;
@@ -68,28 +62,22 @@
     #distributableIncomesTable_wrapper>.row:nth-of-type(2) {
         overflow-x: auto !important;
     }
-
     #distributableIncomesTable_wrapper>.row:nth-of-type(3) {
         margin-top: 15px !important;
     }
-
     #settlementsTable_wrapper>.row:nth-of-type(2) {
         overflow-x: auto !important;
     }
-
     #settlementsTable_wrapper>.row:nth-of-type(3) {
         margin-top: 15px !important;
     }
-
     .table-danger {
         background-color: #f8d7da !important;
     }
-
     .disabled {
         pointer-events: none;
         opacity: 0.5;
     }
-
     .totals-card {
         background: #f8f9fa;
         border-left: 4px solid #ff6c2f;
@@ -98,47 +86,37 @@
         transition: all 0.3s ease;
         border-radius: 8px;
     }
-
     .totals-card.filtered {
         border-left-color: #28a745;
         background: #f0fff4;
     }
-
     .totals-card.bg-light {
         background: #e9ecef !important;
         border-left: 4px solid #495057;
     }
-
     .concept-section-table {
         margin-bottom: 0;
     }
-
     .section-total-row {
-        background-color: rgba(0, 0, 0, 0.03);
+        background-color: rgba(0,0,0,0.03);
         font-weight: 600;
     }
-
     #grandTotalsRow {
-        background-color: rgba(255, 108, 47, 0.1);
+        background-color: rgba(255,108,47,0.1);
         font-size: 1.1em;
     }
-
     .alert-deadline {
         animation: pulse 2s infinite;
     }
-
     @keyframes pulse {
-
         0%,
         100% {
             opacity: 1;
         }
-
         50% {
             opacity: 0.7;
         }
     }
-
     .header-controls {
         background: #fff;
         padding: 15px;
@@ -146,29 +124,24 @@
         margin-bottom: 20px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
-
     .nav-tabs .nav-link {
         color: #495057;
     }
-
     .nav-tabs .nav-link.active {
         color: #ff6c2f;
         font-weight: 600;
     }
-
-    #billingInvoicesTable_wrapper>.row:nth-of-type(2) {
+    #billingInvoicesTable_wrapper > .row:nth-of-type(2) {
         overflow-x: auto !important;
     }
-
-    #billingInvoicesTable_wrapper>.row:nth-of-type(3) {
+    #billingInvoicesTable_wrapper > .row:nth-of-type(3) {
         margin-top: 15px !important;
     }
 
-    #creditNotesTable_wrapper>.row:nth-of-type(3) {
+    #creditNotesTable_wrapper > .row:nth-of-type(3) {
         margin-top: 15px !important;
     }
-
-    #creditNotesTable th,
+    #creditNotesTable th, 
     #creditNotesTable td {
         white-space: normal !important;
         word-break: break-word;
@@ -178,21 +151,18 @@
         opacity: 0.6;
         background: #f8f9fa !important;
     }
-
     .section-has-data {
         background: #fff;
     }
 
     /* Number formatting styles */
-    .number-input,
-    .currency-input {
+    .number-input, .currency-input {
         text-align: right;
         font-family: 'Courier New', monospace;
         font-weight: 500;
     }
 
-    .number-input:focus,
-    .currency-input:focus {
+    .number-input:focus, .currency-input:focus {
         border-color: #405189;
         box-shadow: 0 0 0 0.1rem rgba(64, 81, 137, 0.25);
     }
@@ -225,8 +195,7 @@
 
 @section('content')
 <div class="loader--ripple" style="display: none;">
-    <div></div>
-    <div></div>
+    <div></div><div></div>
 </div>
 
 <div class="row">
@@ -255,11 +224,11 @@
                                         <label class="form-label mb-1">{{ __('Month') }}</label>
                                         <select class="form-select form-select-sm" id="monthFilter">
                                             <option value="">{{ __('All Months') }}</option>
-                                            @for($m = 1; $m <= 12; $m++)
+                                            @for($m = 1; $m <= 12; $m++) 
                                                 <option value="{{ $m }}" {{ date('n') == $m ? 'selected' : '' }}>
-                                                {{ date('F', mktime(0, 0, 0, $m, 1)) }}
+                                                    {{ date('F', mktime(0, 0, 0, $m, 1)) }}
                                                 </option>
-                                                @endfor
+                                            @endfor
                                         </select>
                                     </div>
                                     <div class="col-md-2">
@@ -267,7 +236,7 @@
                                         <select class="form-select form-select-sm" id="yearFilter">
                                             <option value="">{{ __('All Years') }}</option>
                                             @for($y = date('Y'); $y >= date('Y') - 5; $y--)
-                                            <option value="{{ $y }}" {{ date('Y') == $y ? 'selected' : '' }}>{{ $y }}</option>
+                                                <option value="{{ $y }}" {{ date('Y') == $y ? 'selected' : '' }}>{{ $y }}</option>
                                             @endfor
                                         </select>
                                     </div>
@@ -410,7 +379,7 @@
                                         <select class="form-select form-select-sm" id="invoiceCategoryFilter">
                                             <option value="">All Categories</option>
                                             @foreach($clientCategories ?? [] as $category)
-                                            <option value="{{ $category->id }}">{{ $category->category_name }}</option>
+                                                <option value="{{ $category->id }}">{{ $category->category_name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -596,7 +565,7 @@
                             </div>
                         </div>
                     */ ?>
-
+                    
                     <!-- Income Tab -->
                     <div class="tab-pane" id="income" role="tabpanel">
                         <!-- Period Filter -->
@@ -610,14 +579,16 @@
                                             id="incomePeriodStart"
                                             class="form-control form-control-sm d-inline-block"
                                             style="width: 150px"
-                                            value="{{ date('Y-m-01') }}" />
+                                            value="{{ date('Y-m-01') }}"
+                                        />
                                         <span class="mx-2">–</span>
                                         <input
                                             type="date"
                                             id="incomePeriodEnd"
                                             class="form-control form-control-sm d-inline-block"
                                             style="width: 150px"
-                                            value="{{ date('Y-m-t') }}" />
+                                            value="{{ date('Y-m-t') }}"
+                                        />
                                     </div>
                                     <div>
                                         <button type="button" class="btn btn-success btn-sm" onclick="openIncomeModal()">
@@ -746,11 +717,11 @@
                                                         <select class="form-control" id="incomeBank" name="bank_code" required>
                                                             <option value="NONE">{{ __('None Bank') }}</option>
                                                             @if(isset($banks) && count($banks) > 0)
-                                                            @foreach($banks as $bank)
-                                                            <option value="{{ $bank->id }}" {{ $bank->default ? 'selected' : '' }}>
-                                                                {{ $bank->bank_code }} - {{ $bank->bank_name }}
-                                                            </option>
-                                                            @endforeach
+                                                                @foreach($banks as $bank)
+                                                                    <option value="{{ $bank->id }}" {{ $bank->default ? 'selected' : '' }}>
+                                                                        {{ $bank->bank_code }} - {{ $bank->bank_name }}
+                                                                    </option>
+                                                                @endforeach
                                                             @endif
                                                         </select>
                                                     </div>
@@ -763,7 +734,8 @@
                                                             id="incomeDate"
                                                             name="income_date"
                                                             value="{{ date('Y-m-d') }}"
-                                                            required />
+                                                            required
+                                                        />
                                                     </div>
 
                                                     <div class="col-md-3">
@@ -775,7 +747,8 @@
                                                                 id="incomeAmount"
                                                                 name="income_amount"
                                                                 data-thousand-separator
-                                                                required />
+                                                                required
+                                                            />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -801,12 +774,13 @@
                                                         <select class="form-control" id="incomeCompany" name="company_id">
                                                             <option value="">{{ __('Select Company...') }}</option>
                                                             @foreach($clients as $client)
-                                                            <option
-                                                                value="{{ $client->id }}"
-                                                                data-company="{{ $client->legalName }}"
-                                                                data-commercial="{{ $client->commercialName }}">
-                                                                {{ $client->commercialName }}
-                                                            </option>
+                                                                <option
+                                                                    value="{{ $client->id }}"
+                                                                    data-company="{{ $client->legalName }}"
+                                                                    data-commercial="{{ $client->commercialName }}"
+                                                                >
+                                                                    {{ $client->commercialName }}
+                                                                </option>
                                                             @endforeach
                                                         </select>
                                                     </div>
@@ -847,7 +821,8 @@
                                                             class="form-control"
                                                             id="incomeCompanyName"
                                                             name="company"
-                                                            readonly />
+                                                            readonly
+                                                        />
                                                     </div>
 
                                                     <div class="col-md-4">
@@ -857,7 +832,8 @@
                                                             class="form-control"
                                                             id="incomeCommercialName"
                                                             name="commercial_name"
-                                                            readonly />
+                                                            readonly
+                                                        />
                                                     </div>
 
                                                     <div class="col-md-4">
@@ -869,7 +845,8 @@
                                                                 id="incomeOtherAmounts"
                                                                 name="other_amounts"
                                                                 value="0,00"
-                                                                data-thousand-separator />
+                                                                data-thousand-separator
+                                                            />
                                                         </div>
                                                         <small class="text-muted">{{ __('Use for legal deductions or adjustments (can be negative)') }}</small>
                                                     </div>
@@ -904,9 +881,9 @@
                                                         <select class="form-select" id="incomeReceiptConsecutive" name="receipt_consecutive_id">
                                                             <option value="">{{ __('Select receipt consecutive (optional)') }}</option>
                                                             @if(isset($receiptConsecutives) && count($receiptConsecutives) > 0)
-                                                            @foreach($receiptConsecutives as $rc)
-                                                            <option value="{{ $rc->id }}">{{ $rc->consecutive_name }} (next: {{ $rc->next_number }})</option>
-                                                            @endforeach
+                                                                @foreach($receiptConsecutives as $rc)
+                                                                    <option value="{{ $rc->id }}">{{ $rc->consecutive_name }} (next: {{ $rc->next_number }})</option>
+                                                                @endforeach
                                                             @endif
                                                         </select>
                                                         <small class="text-muted">{{ __('If RC No is empty, the system will auto-generate using this consecutive.') }}</small>
@@ -919,7 +896,8 @@
                                                             class="form-control"
                                                             id="incomeRCNumber"
                                                             name="rc_number"
-                                                            placeholder="{{ __('Leave blank to auto-generate (if RC Consecutive is selected)') }}" />
+                                                            placeholder="{{ __('Leave blank to auto-generate (if RC Consecutive is selected)') }}"
+                                                        />
                                                     </div>
 
                                                     <div class="col-md-6">
@@ -929,7 +907,8 @@
                                                             class="form-control"
                                                             id="incomeRCDate"
                                                             name="rc_date"
-                                                            value="{{ date('Y-m-t') }}" />
+                                                            value="{{ date('Y-m-t') }}"
+                                                        />
                                                         <small class="text-muted">{{ __('Default: Last day of current month') }}</small>
                                                     </div>
                                                 </div>
@@ -1222,7 +1201,7 @@
                                         </div>
                                     </div>
                                 </div>
-
+                                
                                 <!-- Validated Incomes Section (View 1) -->
                                 <div class="card-body" id="validatedIncomesSection">
                                     <h5 class="card-title mb-3">Validated Incomes</h5>
@@ -1230,7 +1209,7 @@
                                         <i class="ri-information-line me-2"></i>
                                         Select invoices to distribute by concept, then click "Distribute" to move them to Distributable Incomes.
                                     </div>
-
+                                    
                                     <!-- Concept Totals -->
                                     <div class="totals-card mb-3">
                                         <h6 class="mb-2">Concept Totals</h6>
@@ -1242,7 +1221,7 @@
                                             </table>
                                         </div>
                                     </div>
-
+                                    
                                     <!-- Action Buttons -->
                                     <div class="mb-3">
                                         <div class="form-check">
@@ -1255,7 +1234,7 @@
                                             <i class="ri-share-forward-line me-1"></i> Distribute Selected
                                         </button>
                                     </div>
-
+                                    
                                     <!-- Validated Incomes Table -->
                                     <div class="table-responsive">
                                         <table id="validatedIncomesTable" class="display table table-bordered table-responsive mb-0">
@@ -1280,7 +1259,7 @@
                                         </table>
                                     </div>
                                 </div>
-
+                                
                                 <!-- Distributable Incomes Section (View 2) -->
                                 <div class="card-body" id="distributableIncomesSection" style="display: none;">
                                     <h5 class="card-title mb-3">Distributable Incomes</h5>
@@ -1288,7 +1267,7 @@
                                         <i class="ri-alert-line me-2"></i>
                                         List of selected items ready to liquidate. Click the settle icon to create a settlement.
                                     </div>
-
+                                    
                                     <!-- Distributable Incomes Table -->
                                     <div class="table-responsive">
                                         <table id="distributableIncomesTable" class="table table-bordered table-hover nowrap">
@@ -1315,7 +1294,7 @@
                                         </table>
                                     </div>
                                 </div>
-
+                                
                                 <!-- Settlements Section (View 3) -->
                                 <!-- Settlements Section (View 3) -->
                                 <div class="card-body" id="settlementsSection" style="display: none;">
@@ -1324,7 +1303,7 @@
                                         <i class="ri-check-double-line me-2"></i>
                                         Finalized liquidation records. View details or mark as paid.
                                     </div>
-
+                                    
                                     <!-- Settlement Filters -->
                                     <div class="row mb-3">
                                         <div class="col-md-3">
@@ -1356,7 +1335,7 @@
                                             </div>
                                         </div> -->
                                     </div>
-
+                                    
                                     <!-- Settlements Table -->
                                     <div class="table-responsive">
                                         <table id="settlementsTable" class="table table-bordered table-hover nowrap">
@@ -1406,7 +1385,7 @@
                                                 <input type="text" class="form-control" id="settlementConcept" readonly>
                                             </div>
                                         </div>
-
+                                        
                                         <div class="row mb-3">
                                             <div class="col-md-6">
                                                 <label class="form-label">Income Month Start *</label>
@@ -1418,7 +1397,7 @@
                                                 <small class="text-muted">Leave empty for single month</small>
                                             </div>
                                         </div>
-
+                                        
                                         <div class="row mb-3">
                                             <div class="col-md-6">
                                                 <label class="form-label">Period Covered</label>
@@ -1429,7 +1408,7 @@
                                                 <input type="text" class="form-control" id="distributionFormula" name="distribution_formula" placeholder="e.g., 80% Associates, 20% Admin">
                                             </div>
                                         </div>
-
+                                        
                                         <!-- Distribution Type -->
                                         <div class="row mb-3">
                                             <div class="col-md-12">
@@ -1448,24 +1427,24 @@
                                                 </div>
                                             </div>
                                         </div>
-
+                                        
                                         <!-- Manual Distribution Section -->
                                         <div id="manualDistributionSection" style="display: none;">
                                             <div class="alert alert-info">
                                                 <i class="ri-information-line me-2"></i>
                                                 Add associates and assign percentages or fixed values. Total percentage must equal 100%.
                                             </div>
-
+                                            
                                             <div id="associatesContainer">
                                                 <!-- Associates will be added here dynamically -->
                                             </div>
-
+                                            
                                             <div class="mb-3">
                                                 <button type="button" class="btn btn-sm btn-primary" onclick="addAssociateRow()">
                                                     <i class="ri-add-line me-1"></i> Add Associate
                                                 </button>
                                             </div>
-
+                                            
                                             <div class="row">
                                                 <div class="col-md-4">
                                                     <label class="form-label">Total Percentage</label>
@@ -1487,7 +1466,7 @@
                                                 </div>
                                             </div>
                                         </div>
-
+                                        
                                         <!-- Amount Summary -->
                                         <div class="alert alert-primary mt-3">
                                             <div class="row">
@@ -1572,16 +1551,16 @@
                                             <select class="form-select form-select-sm" id="portfolioPeriodMonth">
                                                 @for($m = 1; $m <= 12; $m++)
                                                     <option value="{{ $m }}" {{ date('n') == $m ? 'selected' : '' }}>
-                                                    {{ date('F', mktime(0, 0, 0, $m, 1)) }}
+                                                        {{ date('F', mktime(0, 0, 0, $m, 1)) }}
                                                     </option>
-                                                    @endfor
+                                                @endfor
                                             </select>
                                         </div>
                                         <div class="col-md-2">
                                             <label class="form-label mb-1">Period Year</label>
                                             <select class="form-select form-select-sm" id="portfolioPeriodYear">
                                                 @for($y = date('Y'); $y >= date('Y') - 3; $y--)
-                                                <option value="{{ $y }}" {{ date('Y') == $y ? 'selected' : '' }}>{{ $y }}</option>
+                                                    <option value="{{ $y }}" {{ date('Y') == $y ? 'selected' : '' }}>{{ $y }}</option>
                                                 @endfor
                                             </select>
                                         </div>
@@ -1608,7 +1587,7 @@
                                         </div>
                                     </div>
                                 </div>
-
+                                
                                 <div class="card-body">
                                     <!-- Summary Cards -->
                                     <div class="row mb-4">
@@ -1673,7 +1652,7 @@
                                     <input type="hidden" id="commentInvoiceId" name="invoice_id">
                                     <input type="hidden" id="commentPeriodMonth" name="period_month">
                                     <input type="hidden" id="commentPeriodYear" name="period_year">
-
+                                    
                                     <div class="modal-body">
                                         <div class="mb-3">
                                             <label class="form-label">Client</label>
@@ -1713,7 +1692,7 @@
                                 </div>
                                 <form id="approveCommentForm">
                                     <input type="hidden" id="approveCommentId">
-
+                                    
                                     <div class="modal-body">
                                         <div class="mb-3">
                                             <label class="form-label">Comment</label>
@@ -1800,7 +1779,7 @@
                             <label for="licensedEnvironment" class="form-label">Licensed Environment</label>
                             <select class="form-control" id="licensedEnvironment" name="licensedEnvironment" data-choices data-choices-sorting-false placeholder="Select Licensed Environment..." required>
                                 @foreach($environments as $name)
-                                <option value="{{ $name }}">{{ $name }}</option>
+                                    <option value="{{ $name }}">{{ $name }}</option>
                                 @endforeach
                             </select>
                             @error('licensedEnvironment') <span class="text-danger">{{ $message }}</span> @enderror
@@ -1913,11 +1892,11 @@
                             <label for="newBudgetMonth" class="form-label">Budget Month</label>
                             <select class="form-control" name="budget_month" id="newBudgetMonth">
                                 <option value="">Select Month...</option>
-                                @for($m = 1; $m <= 12; $m++)
-                                    <option value="{{ $m }}" {{ date('n') == $m ? 'selected' : '' }}>
+                                @for($m = 1; $m <= 12; $m++) 
+                                <option value="{{ $m }}" {{ date('n') == $m ? 'selected' : '' }}>
                                     {{ date('F', mktime(0, 0, 0, $m, 1)) }}
-                                    </option>
-                                    @endfor
+                                </option>
+                                @endfor
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -1958,26 +1937,26 @@
     function formatNumberWithDots(value) {
         if (!value) return '';
         const isNegative = /^\s*-/.test(value);
-
+        
         // Remove all non-digit characters except dots and commas
         let cleaned = value.replace(/[^\d,.]/g, '');
-
+        
         // Split by comma to handle decimal part
         let parts = cleaned.split(',');
         let integerPart = parts[0];
         let decimalPart = parts[1] || '';
-
+        
         // Remove existing dots from integer part
         integerPart = integerPart.replace(/\./g, '');
-
+        
         // Add thousand separators (dots) to integer part
         integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-
+        
         // Limit decimal to 2 digits
         if (decimalPart.length > 2) {
             decimalPart = decimalPart.substring(0, 2);
         }
-
+        
         // Combine parts
         const formatted = decimalPart ? integerPart + ',' + decimalPart : integerPart;
         if (isNegative && formatted) return '-' + formatted;
@@ -1994,22 +1973,22 @@
 
     function initializeNumberFormatting() {
         const numberInputs = document.querySelectorAll('.number-input, .currency-input, [data-thousand-separator]');
-
+        
         numberInputs.forEach(input => {
             // Format as user types
             input.addEventListener('input', function(e) {
                 let cursorPosition = this.selectionStart;
                 let oldLength = this.value.length;
                 let oldValue = this.value;
-
+                
                 // Format the value
                 let formattedValue = formatNumberWithDots(this.value);
                 this.value = formattedValue;
-
+                
                 // Adjust cursor position after formatting
                 let newLength = this.value.length;
                 let lengthDiff = newLength - oldLength;
-
+                
                 // Keep cursor in correct position
                 if (lengthDiff > 0) {
                     cursorPosition += lengthDiff;
@@ -2029,7 +2008,7 @@
                 if (this.value) {
                     let unformatted = unformatNumber(this.value);
                     let numValue = parseFloat(unformatted);
-
+                    
                     if (!isNaN(numValue)) {
                         // Format with 2 decimal places
                         let formatted = numValue.toFixed(2).replace('.', ',');
@@ -2052,10 +2031,10 @@
                 const hasComma = (this.value || '').includes(',');
                 const hasMinus = (this.value || '').includes('-');
                 const canPlaceMinus = this.selectionStart === 0;
-
+                
                 // Allow: numbers, comma (only one), navigation keys, ctrl+a, ctrl+c, ctrl+v, ctrl+x
-                if (!isNumber &&
-                    !(isComma && !hasComma) &&
+                if (!isNumber && 
+                    !(isComma && !hasComma) && 
                     !isDot && // Allow dot for compatibility
                     !(isMinus && !hasMinus && canPlaceMinus) &&
                     !allowedKeys.includes(key) &&
@@ -2070,14 +2049,11 @@
     $(document).ready(function() {
         // Initialize number formatting
         initializeNumberFormatting();
-
+        
         function ymToParts(val) {
             if (!val) return null;
             const [y, m] = val.split('-').map(v => parseInt(v, 10));
-            return {
-                y,
-                m
-            };
+            return { y, m };
         }
 
         function partsToYm(y, m) {
@@ -2246,9 +2222,9 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-
+        
         checkDeadlineAlert();
-
+        
         // DataTable initialization with ALL filters properly configured
         let table = $('#budgetData').DataTable({
             processing: true,
@@ -2267,49 +2243,18 @@
                     d.conditionFilter = $('#conditionFilter').val() || '';
                 }
             },
-            columns: [{
-                    data: 'user_type',
-                    name: 'user_type'
-                },
-                {
-                    data: 'company',
-                    name: 'company'
-                },
-                {
-                    data: 'commercialName',
-                    name: 'commercialName'
-                },
-                {
-                    data: 'subTotal',
-                    name: 'subTotal'
-                },
-                {
-                    data: 'vat',
-                    name: 'vat'
-                },
-                {
-                    data: 'total',
-                    name: 'total'
-                },
+            columns: [
+                { data: 'user_type', name: 'user_type' },
+                { data: 'company', name: 'company' },
+                { data: 'commercialName', name: 'commercialName' },
+                { data: 'subTotal', name: 'subTotal' },
+                { data: 'vat', name: 'vat' },
+                { data: 'total', name: 'total' },
                 // { data: 'annual_value', name: 'annual_value' },
-                {
-                    data: 'condition',
-                    name: 'condition'
-                },
-                {
-                    data: 'status',
-                    name: 'status'
-                },
-                {
-                    data: 'created_at',
-                    name: 'created_at'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
-                }
+                { data: 'condition', name: 'condition' },
+                { data: 'status', name: 'status' },
+                { data: 'created_at', name: 'created_at' },
+                { data: 'action', name: 'action', orderable: false, searchable: false }
             ],
             createdRow: function(row, data, dataIndex) {
                 if (data.row_class) {
@@ -2333,7 +2278,7 @@
             table.ajax.reload(null, false);
             refreshConceptTotals();
         });
-
+        
         // Initialize tooltips after table draw
         table.on('draw', function() {
             const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
@@ -2371,10 +2316,10 @@
                 Object.keys(res.sections).forEach(sectionKey => {
                     const section = res.sections[sectionKey];
                     const sectionElement = $(`#section-${sectionKey}`);
-
+                    
                     // Update section title
                     sectionElement.find('.card-title').text(section.title);
-
+                    
                     // Update each concept in the section
                     section.concepts.forEach(function(concept) {
                         const selector = `#section-${sectionKey} tr[data-concept="${concept.name}"]`;
@@ -2382,20 +2327,20 @@
                         const sub = formatEuro(concept.subTotal);
                         const vat = formatEuro(concept.vat);
                         const tot = formatEuro(concept.total);
-
+                        
                         if (row.length) {
                             row.find('.subtotal').html('Subtotal: $ ' + sub);
                             row.find('.vat').html('VAT: $ ' + vat);
                             row.find('.total').html('Total: $ ' + tot);
                         }
                     });
-
+                    
                     // Update section total
                     const sectionTotalRow = $(`#section-${sectionKey} .section-total-row`);
                     sectionTotalRow.find('.subtotal').html('<strong>Subtotal: $ ' + formatEuro(section.sectionTotal.subTotal) + '</strong>');
                     sectionTotalRow.find('.vat').html('<strong>VAT: $ ' + formatEuro(section.sectionTotal.vat) + '</strong>');
                     sectionTotalRow.find('.total').html('<strong>Total: $ ' + formatEuro(section.sectionTotal.total) + '</strong>');
-
+                    
                     // Show/hide section based on whether it has data
                     const hasData = section.sectionTotal.total > 0;
                     if (hasData) {
@@ -2404,14 +2349,14 @@
                         sectionElement.hide().addClass('section-empty').removeClass('section-has-data');
                     }
                 });
-
+                
                 // Update grand total
                 $('#grandTotalsRow .subtotal').html('<strong>Subtotal: $ ' + formatEuro(res.grandTotal.subTotal) + '</strong>');
                 $('#grandTotalsRow .vat').html('<strong>VAT: $ ' + formatEuro(res.grandTotal.vat) + '</strong>');
                 $('#grandTotalsRow .total').html('<strong>Total: $ ' + formatEuro(res.grandTotal.total) + '</strong>');
             },
             error: function(xhr) {
-                console.error(@json(__('Failed to refresh concept totals')), xhr);
+            console.error(@json(__('Failed to refresh concept totals')), xhr);
             }
         });
     }
@@ -2479,39 +2424,38 @@
         myModal.show();
 
         $('#exampleModalScrollableTitle').text(@json(__('Loading...')));
-        $('#exampleModalScrollable .modal-body').html('<p>{{ __('
-            Loading...') }}</p>');
+        $('#exampleModalScrollable .modal-body').html('<p>{{ __('Loading...') }}</p>');
 
         $.ajax({
             url: '/get-budget-record/' + recordID,
             type: 'GET',
             dataType: 'json',
             success: function(data) {
-                let criterionOptions = '<option value="">Select criterion...</option>';
-                if (Array.isArray(data.criterions)) {
-                    data.criterions.forEach(function(item) {
-                        criterionOptions += `
+            let criterionOptions = '<option value="">Select criterion...</option>';
+            if (Array.isArray(data.criterions)) {
+                data.criterions.forEach(function(item) {
+                    criterionOptions += `
                         <option value="${item.id}">
                             ${item.criterion_name}
                         </option>
                     `;
-                    });
-                }
+                });
+            }
 
-                let consecutiveOptions = '<option value="">Select consecutive...</option>';
-                if (Array.isArray(data.consecutives)) {
-                    data.consecutives.forEach(function(item) {
-                        consecutiveOptions += `
+            let consecutiveOptions = '<option value="">Select consecutive...</option>';
+            if (Array.isArray(data.consecutives)) {
+                data.consecutives.forEach(function(item) {
+                    consecutiveOptions += `
                         <option value="${item.id}">
                             ${item.consecutive_name}
                         </option>
                     `;
-                    });
-                }
+                });
+            }
 
-                const defaultInvoiceDate = @json(date('Y-m-d'));
+            const defaultInvoiceDate = @json(date('Y-m-d'));
 
-                $('#exampleModalScrollableTitle').text(@json(__('Register Invoice')));
+            $('#exampleModalScrollableTitle').text(@json(__('Register Invoice')));
                 $('#exampleModalScrollable .modal-body').html(`
             <input type="hidden" name="budgetID" id="budgetID" value="${recordID}">
             <div class="row">
@@ -2582,9 +2526,9 @@
             success: function(response) {
                 $('.loader--ripple').hide();
                 Swal.fire({
-                    icon: 'success',
-                    title: @json(__('Success')),
-                    text: response.message || @json(__('Invoice generated successfully.')),
+                icon: 'success',
+                title: @json(__('Success')),
+                text: response.message || @json(__('Invoice generated successfully.')),
                     confirmButtonColor: '#3085d6',
                 }).then(() => {
                     $('#exampleModalScrollable').modal('hide');
@@ -2596,9 +2540,9 @@
             error: function(xhr) {
                 $('.loader--ripple').hide();
                 Swal.fire({
-                    icon: 'error',
-                    title: @json(__('Error!')),
-                    text: xhr.responseJSON?.message || @json(__('Something went wrong. Please try again.')),
+                icon: 'error',
+                title: @json(__('Error!')),
+                text: xhr.responseJSON?.message || @json(__('Something went wrong. Please try again.')),
                     confirmButtonColor: '#d33',
                 });
             }
@@ -2614,7 +2558,7 @@
             autoWidth: false,
             ajax: {
                 url: "{{ route('get-invoice.data') }}",
-                data: function(d) {
+                data: function(d){
                     d.start_date = $('#invoiceDateStart').val();
                     d.end_date = $('#invoiceDateEnd').val();
                     d.status = $('#invoiceStatusFilter').val();
@@ -2624,61 +2568,20 @@
                     d.criterion = $('#invoiceCriterionFilter').val();
                 }
             },
-            columns: [{
-                    data: 'client_category',
-                    name: 'client_category'
-                },
-                {
-                    data: 'sub_category',
-                    name: 'sub_category'
-                },
-                {
-                    data: 'commercialName',
-                    name: 'commercialName'
-                },
-                {
-                    data: 'invoiceNumber',
-                    name: 'invoiceNumber'
-                },
-                {
-                    data: 'invoiceDate',
-                    name: 'invoiceDate'
-                },
-                {
-                    data: 'concept',
-                    name: 'concept'
-                },
-                {
-                    data: 'period',
-                    name: 'period'
-                },
-                {
-                    data: 'criterion',
-                    name: 'criterion'
-                },
-                {
-                    data: 'subTotal',
-                    name: 'subTotal'
-                },
-                {
-                    data: 'vat',
-                    name: 'vat'
-                },
-                {
-                    data: 'total',
-                    name: 'total'
-                },
-                {
-                    data: 'status',
-                    name: 'status',
-                    orderable: false
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
-                }
+            columns: [
+                { data: 'client_category', name: 'client_category' },
+                { data: 'sub_category', name: 'sub_category' },
+                { data: 'commercialName', name: 'commercialName' },
+                { data: 'invoiceNumber', name: 'invoiceNumber' },
+                { data: 'invoiceDate', name: 'invoiceDate' },
+                { data: 'concept', name: 'concept' },
+                { data: 'period', name: 'period' },
+                { data: 'criterion', name: 'criterion' },
+                { data: 'subTotal', name: 'subTotal' },
+                { data: 'vat', name: 'vat' },
+                { data: 'total', name: 'total' },
+                { data: 'status', name: 'status', orderable: false },
+                { data: 'action', name: 'action', orderable: false, searchable: false }
             ],
             drawCallback: function() {
                 refreshInvoiceConceptTotals();
@@ -2732,10 +2635,10 @@
             dataType: 'json',
             success: function(response) {
                 let html = "";
-
+                
                 // Check if there are any concepts with data
                 const hasData = response.concepts && response.concepts.length > 0;
-
+                
                 if (hasData) {
                     response.concepts.forEach(c => {
                         html += `
@@ -2747,7 +2650,7 @@
                             </tr>
                         `;
                     });
-
+                    
                     html += `
                         <tr class="border-top">
                             <td><strong>Total Invoiced</strong></td>
@@ -2765,9 +2668,9 @@
                         </tr>
                     `;
                 }
-
+                
                 $("#invoiceConceptTotalsTable tbody").html(html);
-
+                
                 // Add visual indicator if filters are active
                 const filtersActive = status || commercial || category || concept || criterion;
                 if (filtersActive) {
@@ -2884,9 +2787,7 @@
             }
         });
     }
-    $(document).ready(function() {
-        loadInvoiceConceptTotals();
-    });
+    $(document).ready(function(){ loadInvoiceConceptTotals(); });
 
     // Billing and Credit Notes JavaScript remains the same
     $(function() {
@@ -3074,12 +2975,12 @@
         window.generateBillingReport = function() {
             const start = $('#billingPeriodStart').val();
             const end = $('#billingPeriodEnd').val();
-
+            
             if (!start || !end) {
                 Swal.fire('Error', 'Please select both start and end dates', 'error');
                 return;
             }
-
+            
             Swal.fire({
                 title: 'Generating Report...',
                 html: 'Please wait while we generate your PDF report',
@@ -3088,10 +2989,10 @@
                     Swal.showLoading();
                 }
             });
-
+            
             // Open in new tab to trigger download
             window.open("{{ route('billing.report') }}?start_date=" + start + "&end_date=" + end, '_blank');
-
+            
             setTimeout(() => {
                 Swal.close();
             }, 1000);
@@ -3100,12 +3001,12 @@
         window.downloadBillingExcel = function() {
             const start = $('#billingPeriodStart').val();
             const end = $('#billingPeriodEnd').val();
-
+            
             if (!start || !end) {
                 Swal.fire('Error', 'Please select both start and end dates', 'error');
                 return;
             }
-
+            
             Swal.fire({
                 title: 'Downloading...',
                 html: 'Please wait while we prepare your Excel file',
@@ -3114,29 +3015,29 @@
                     Swal.showLoading();
                 }
             });
-
+            
             // Create a hidden form to submit
             const form = $('<form>', {
                 'method': 'GET',
                 'action': "{{ route('billing.download') }}"
             });
-
+            
             form.append($('<input>', {
                 'type': 'hidden',
                 'name': 'start_date',
                 'value': start
             }));
-
+            
             form.append($('<input>', {
                 'type': 'hidden',
                 'name': 'end_date',
                 'value': end
             }));
-
+            
             $('body').append(form);
             form.submit();
             form.remove();
-
+            
             setTimeout(() => {
                 Swal.close();
             }, 1000);
@@ -3183,7 +3084,7 @@
                 </div>
               </form>
             `;
-
+            
             Swal.fire({
                 title: 'Register Credit Note',
                 html: html,
@@ -3195,21 +3096,21 @@
                     const $subTotal = $('#cnSubTotal');
                     const $vat = $('#cnVat');
                     const $total = $('#cnTotal');
-
+                    
                     function calculateTotal() {
                         const subTotal = parseFloat($subTotal.val()) || 0;
                         const vatPercent = parseFloat($vat.val()) || 0;
                         const total = subTotal + (subTotal * vatPercent / 100);
                         $total.val(total.toFixed(2));
                     }
-
+                    
                     $subTotal.on('input', calculateTotal);
                     $vat.on('input', calculateTotal);
                 },
                 preConfirm: () => {
                     const $f = $('#cnForm');
                     const formData = new FormData($f[0]);
-
+                    
                     // Validate file size (max 5MB)
                     const fileInput = document.getElementById('cnSupportingDoc');
                     if (fileInput.files.length > 0) {
@@ -3219,21 +3120,21 @@
                             return false;
                         }
                     }
-
+                    
                     return $.ajax({
-                            url: "{{ route('billing.cn.store') }}",
-                            type: 'POST',
-                            data: formData,
-                            processData: false,
-                            contentType: false,
-                            headers: {
-                                'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                            }
-                        }).then(res => res)
-                        .catch(xhr => {
-                            const msg = xhr.responseJSON?.message || 'Validation error';
-                            Swal.showValidationMessage(msg);
-                        });
+                        url: "{{ route('billing.cn.store') }}",
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        headers: {
+                            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                        }
+                    }).then(res => res)
+                    .catch(xhr => {
+                        const msg = xhr.responseJSON?.message || 'Validation error';
+                        Swal.showValidationMessage(msg);
+                    });
                 }
             }).then(result => {
                 if (result.isConfirmed) {
@@ -3273,10 +3174,10 @@
     $(document).ready(function() {
         // Initialize number formatting for income form
         initializeNumberFormatting();
-
+        
         // Income DataTable
         const $incomeStart = $('#incomePeriodStart');
-        const $incomeEnd = $('#incomePeriodEnd');
+        const $incomeEnd   = $('#incomePeriodEnd');
 
         const incomeTable = $('#incomeTable').DataTable({
             processing: true,
@@ -3285,45 +3186,22 @@
             autoWidth: false,
             ajax: {
                 url: "{{ route('income.data') }}",
-                data: function(d) {
+                data: function (d) {
                     d.start_date = $incomeStart.val();
-                    d.end_date = $incomeEnd.val();
+                    d.end_date   = $incomeEnd.val();
                 }
             },
-            columns: [{
-                    data: 'income_date',
-                    name: 'income_date'
-                },
-                {
-                    data: 'mode',
-                    name: 'mode'
-                },
-                {
-                    data: 'bank_code',
-                    name: 'bank_code'
-                },
-                {
-                    data: 'company',
-                    name: 'company'
-                },
-                {
-                    data: 'commercial_name',
-                    name: 'commercial_name'
-                },
-                {
-                    data: 'income_amount',
-                    name: 'income_amount'
-                },
-                {
-                    data: 'other_amounts',
-                    name: 'other_amounts'
-                },
-                {
-                    data: 'total_paid',
-                    name: 'total_paid'
-                },
-                {
-                    data: 'invoice_number',
+            columns: [
+                { data: 'income_date',     name: 'income_date' },
+                { data: 'mode',            name: 'mode' },
+                { data: 'bank_code',       name: 'bank_code' },
+                { data: 'company',         name: 'company' },
+                { data: 'commercial_name', name: 'commercial_name' },
+                { data: 'income_amount',   name: 'income_amount' },
+                { data: 'other_amounts',   name: 'other_amounts' },
+                { data: 'total_paid',      name: 'total_paid' },
+                { 
+                    data: 'invoice_number', 
                     name: 'invoice_number',
                     render: function(data, type, row) {
                         if (!row.invoice_ids || !Array.isArray(row.invoice_ids)) {
@@ -3332,42 +3210,16 @@
                         return row.invoice_ids.map(inv => `<span class="badge bg-light text-dark border me-1">${inv}</span>`).join("");
                     }
                 },
-                {
-                    data: 'invoice_date',
-                    name: 'invoice_date'
-                },
-                {
-                    data: 'concept',
-                    name: 'concept'
-                },
-                {
-                    data: 'invoice_period',
-                    name: 'invoice_period'
-                },
-                {
-                    data: 'invoice_value',
-                    name: 'invoice_value'
-                },
-                {
-                    data: 'balance',
-                    name: 'balance'
-                },
-                {
-                    data: 'rc_number',
-                    name: 'rc_number'
-                },
-                {
-                    data: 'rc_date',
-                    name: 'rc_date'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
-                }
+                { data: 'invoice_date',    name: 'invoice_date' },
+                { data: 'concept',         name: 'concept' },
+                { data: 'invoice_period',  name: 'invoice_period' },
+                { data: 'invoice_value',   name: 'invoice_value' },
+                { data: 'balance',         name: 'balance' },
+                { data: 'rc_number',       name: 'rc_number' },
+                { data: 'rc_date',         name: 'rc_date' },
+                { data: 'action',          name: 'action', orderable: false, searchable: false }
             ],
-            drawCallback: function(settings) {
+            drawCallback: function (settings) {
                 const json = settings.json || {};
                 if (json.totals) {
                     updateIncomeTotals(json.totals);
@@ -3376,19 +3228,19 @@
         });
 
         // Period change → reload table
-        $incomeStart.add($incomeEnd).on('change', function() {
+        $incomeStart.add($incomeEnd).on('change', function () {
             incomeTable.ajax.reload();
         });
 
         // Update summary cards + concept totals table
         function updateIncomeTotals(totals) {
             const start = $('#incomePeriodStart').val();
-            const end = $('#incomePeriodEnd').val();
+            const end   = $('#incomePeriodEnd').val();
 
             $.get("{{ route('income.totals.by.concept') }}", {
                 start_date: start,
                 end_date: end
-            }, function(res) {
+            }, function (res) {
 
                 let html = '';
 
@@ -3419,19 +3271,17 @@
         // ========== Company & Invoice Behaviour ==========
 
         // Company selection – load invoices and fill names
-        $('#incomeCompany').on('change', function() {
-            const companyId = $(this).val();
+        $('#incomeCompany').on('change', function () {
+            const companyId      = $(this).val();
             const selectedOption = $(this).find('option:selected');
-            const incomeDate = $('#incomeDate').val();
+            const incomeDate     = $('#incomeDate').val();
 
             if (companyId) {
                 $('#incomeCompanyName').val(selectedOption.data('company') || '');
                 $('#incomeCommercialName').val(selectedOption.data('commercial') || '');
 
                 // Load invoices for selected company (considering income date)
-                $.get(`/income/company-invoices/${companyId}`, {
-                    income_date: incomeDate
-                }, function(data) {
+                $.get(`/income/company-invoices/${companyId}`, { income_date: incomeDate }, function (data) {
                     let options = '<option value="">Select Invoice...</option>';
 
                     data.forEach(inv => {
@@ -3451,7 +3301,7 @@
                     });
 
                     $('#incomeInvoice').html(options).prop('disabled', false);
-
+                    
                     // Also populate surplus invoice dropdown (excluding currently selected invoice)
                     updateSurplusInvoiceDropdown(data, null);
                 });
@@ -3467,7 +3317,7 @@
         // Update surplus invoice dropdown
         function updateSurplusInvoiceDropdown(invoices, excludeId) {
             let options = '<option value="">Select another invoice...</option>';
-
+            
             invoices.forEach(inv => {
                 if (inv.id != excludeId) {
                     options += `
@@ -3481,7 +3331,7 @@
                     `;
                 }
             });
-
+            
             $('#surplusInvoice').html(options);
         }
 
@@ -3491,14 +3341,14 @@
             const container = $('#invoice-details-container');
             const selectedInvoicesSection = $('#selectedInvoicesSection');
             const selectedInvoicesBody = $('#selectedInvoicesBody');
-
+            
             container.empty();
             selectedInvoicesBody.empty();
-
+            
             if (selectedOptions.length > 0 && selectedOptions.first().val() !== '') {
                 let totalInvoiceValue = 0;
                 let totalRemainingBalance = 0;
-
+                
                 selectedOptions.each(function() {
                     const opt = $(this);
                     const id = opt.val();
@@ -3510,10 +3360,10 @@
                     const balance = parseFloat(opt.data('balance')) || 0;
                     const company = opt.data('company') || '';
                     const commercial = opt.data('commercial') || '';
-
+                    
                     totalInvoiceValue += value;
                     totalRemainingBalance += balance;
-
+                    
                     // Fill Auto-filled details container
                     container.append(`
                         <div class="card bg-light border mb-2">
@@ -3531,7 +3381,7 @@
                             </div>
                         </div>
                     `);
-
+                    
                     // Fill table for amounts allocation
                     const row = `<tr data-invoice-id="${id}">
                         <td>${number}</td>
@@ -3544,16 +3394,16 @@
                         <td><button type="button" class="btn btn-sm btn-danger removeInvoiceRow"><i class="ri-delete-bin-line"></i></button></td>
                     </tr>`;
                     selectedInvoicesBody.append(row);
-
+                    
                     // Set company fields from first selected invoice (they should all be from same company)
                     $('#incomeCompanyName').val(company);
                     $('#incomeCommercialName').val(commercial);
                 });
-
+                
                 // Store totals for summary
                 $('#invoice-details-container').data('total-value', totalInvoiceValue);
                 $('#invoice-details-container').data('total-balance', totalRemainingBalance);
-
+                
                 selectedInvoicesSection.show();
                 initializeNumberFormatting(); // Re-init for new inputs
             } else {
@@ -3563,7 +3413,7 @@
                 $('#invoice-details-container').removeData('total-value');
                 $('#invoice-details-container').removeData('total-balance');
             }
-
+            
             updatePaymentSummaryDisplay();
             checkForSurplus();
         });
@@ -3586,16 +3436,16 @@
         // Surplus invoice selection
         $('#surplusInvoice').on('change', function() {
             const selectedOption = $(this).find('option:selected');
-
+            
             if ($(this).val()) {
                 $('#surplusInvoiceNumber').val(selectedOption.data('invoice-number') || '');
                 $('#surplusInvoiceBalance').val(formatEuro(selectedOption.data('balance') || 0));
                 $('#surplusConcept').val(selectedOption.data('concept') || '');
                 $('#surplusPeriod').val(selectedOption.data('period') || '');
-
+                
                 const maxSurplus = calculateSurplus();
                 $('#maxSurplusAmount').text(formatEuro(maxSurplus));
-
+                
                 $('#surplusInvoiceDetails').show();
             } else {
                 $('#surplusInvoiceDetails').hide();
@@ -3608,9 +3458,9 @@
             const surplusValue = parseFormattedNumber($(this).val() || '0');
             const maxSurplus = calculateSurplus();
             const remaining = Math.max(maxSurplus - surplusValue, 0);
-
+            
             $('#remainingSurplus').val(formatEuro(remaining));
-
+            
             // Validation
             if (surplusValue > maxSurplus) {
                 $(this).addClass('is-invalid');
@@ -3639,28 +3489,21 @@
         };
 
         function updatePaymentSummaryDisplay() {
+            // FIXED: Based ONLY on income input per client requirement
             const income = parseFormattedNumber($('#incomeAmount').val() || '0');
-            const other = parseFormattedNumber($('#incomeOtherAmounts').val() || '0');
+            const other  = parseFormattedNumber($('#incomeOtherAmounts').val() || '0');
             const totalPaid = income + other;
 
-            let allocated = 0;
-            $('.applyAmount').each(function() {
-                allocated += parseFormattedNumber($(this).val() || '0');
-            });
-
-            const currentPayment = allocated > 0 ? allocated : totalPaid;
-            const rcBalance = Math.max(totalPaid - currentPayment, 0);
-
-            $('#summaryInvoiceTotalDisplay').text(formatEuro(totalPaid));
-            $('#summaryRemainingBalanceDisplay').text(formatEuro(rcBalance));
-            $('#totalPaidDisplay').text(formatEuro(currentPayment));
+            $('#summaryInvoiceTotalDisplay').text(formatEuro(income));
+            $('#summaryRemainingBalanceDisplay').text(formatEuro(0));
+            $('#totalPaidDisplay').text(formatEuro(totalPaid));
         }
 
         // Calculate surplus amount
         function calculateSurplus() {
             const invoiceTotal = parseFloat($('#invoice-details-container').data('total-value')) || 0;
             const totalPaid = parseFormattedNumber($('#incomeAmount').val() || '0') + parseFormattedNumber($('#incomeOtherAmounts').val() || '0');
-
+            
             const surplus = Math.max(totalPaid - invoiceTotal, 0);
             return surplus;
         }
@@ -3668,7 +3511,7 @@
         // Check for surplus and show/hide surplus section
         function checkForSurplus() {
             const surplus = calculateSurplus();
-
+            
             if (surplus > 0) {
                 $('#surplusSection').show();
                 $('#surplusAmountDisplay').text(formatEuro(surplus));
@@ -3680,7 +3523,7 @@
         // Total Paid = Income Amount + Other Amounts
         function calculateTotalPaid() {
             updatePaymentSummaryDisplay();
-
+            
             // Check for surplus whenever payment amounts change
             if ($('#incomeInvoice').val()) {
                 checkForSurplus();
@@ -3693,12 +3536,12 @@
         // Form submission handling
         $('#incomeForm').on('submit', function(e) {
             e.preventDefault();
-
+            
             // Validate surplus if applicable
             const surplus = calculateSurplus();
             const surplusInvoiceId = $('#surplusInvoice').val();
             const surplusAmount = parseFormattedNumber($('#surplusAmount').val() || '0');
-
+            
             if (surplus > 0 && surplusInvoiceId && surplusAmount > surplus) {
                 Swal.fire({
                     icon: 'error',
@@ -3707,7 +3550,7 @@
                 });
                 return;
             }
-
+            
             // RC Number is now optional for surplus as well
             /*
             if (surplus > 0 && surplusInvoiceId && !$('#surplusRCNumber').val()) {
@@ -3719,7 +3562,7 @@
                 return;
             }
             */
-
+            
             // Proceed with saving
             saveIncome(false);
         });
@@ -3745,13 +3588,22 @@
             if (invoiceIds.length > 0) {
                 let totalDistributed = 0;
                 $('.applyAmount').each(function() {
-                    let val = unformatNumber($(this).val() || '0').trim();
-                    totalDistributed += parseFloat(val) || 0;
+                    let val = $(this).val();
+                    if (val) {
+                        val = val.replace(/,/g, '').trim(); // remove commas
+                        totalDistributed += parseFloat(val) || 0;
+                    }
                 });
 
-                let incomeAmount = unformatNumber($('#incomeAmount').val() || '0').trim();
-                incomeAmount = parseFloat(incomeAmount) || 0;
-
+                let incomeAmount = $('#incomeAmount').val();
+                if (incomeAmount) {
+                    incomeAmount = incomeAmount.replace(/,/g, '').trim();
+                    incomeAmount = parseFloat(incomeAmount) || 0;
+                } else {
+                    incomeAmount = 0;
+                }
+                
+                // Allow minor rounding tolerance (0.01) per requirement
                 if (Math.abs(totalDistributed - incomeAmount) > 0.01) {
                     Swal.fire({
                         icon: 'error',
@@ -3763,9 +3615,9 @@
             }
 
             const formData = new FormData($('#incomeForm')[0]);
-            const url = $('#incomeId').val() ?
-                `/income/update/${$('#incomeId').val()}` :
-                "{{ route('income.store') }}";
+            const url = $('#incomeId').val() 
+                ? `/income/update/${$('#incomeId').val()}` 
+                : "{{ route('income.store') }}";
 
             // Append to FormData after it's created
             if (invoiceIds.length > 0) {
@@ -3779,7 +3631,7 @@
                     formData.append('invoice_amounts[]', amt);
                 });
             }
-
+            
             // Unformat numbers before submission
             const fieldsToUnformat = ['income_amount', 'other_amounts', 'surplus_amount'];
             fieldsToUnformat.forEach(field => {
@@ -3789,21 +3641,19 @@
                     formData.set(field, unformatted);
                 }
             });
-
+            
             $.ajax({
                 url: url,
                 type: 'POST',
                 data: formData,
                 processData: false,
                 contentType: false,
-                headers: {
-                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                },
+                headers: { 'X-CSRF-TOKEN': "{{ csrf_token() }}" },
                 success: function(response) {
                     if (response.status) {
                         Swal.fire(@json(__('Success')), response.message || @json(__('Income registered successfully')), 'success');
                         incomeTable.ajax.reload();
-
+                        
                         if (addAnother) {
                             // Reset form for new entry
                             $('#incomeForm')[0].reset();
@@ -3857,37 +3707,37 @@
                 $('#incomeForm')[0].reset();
                 $('#surplusSection').hide();
                 $('#surplusInvoiceDetails').hide();
-
+                
                 // Set basic fields
                 $('#incomeId').val(data.id);
                 $('#incomeMode').val(data.mode);
                 $('#incomeBank').val(data.bank_code);
                 $('#incomeDate').val(data.income_date);
-
+                
                 // Format and set number fields
                 $('#incomeAmount').val(formatNumberForDisplay(data.income_amount));
                 $('#incomeOtherAmounts').val(formatNumberForDisplay(data.other_amounts));
-
+                
                 // Set RC fields
                 $('#incomeRCNumber').val(data.rc_number);
                 $('#incomeRCDate').val(data.rc_date);
-
+                
                 // Set company and invoice fields
                 if (data.company_id) {
                     $('#incomeCompany').val(data.company_id);
-
+                    
                     // Load invoices for this company
-                    $.get(`/income/company-invoices/${data.company_id}`, {
+                    $.get(`/income/company-invoices/${data.company_id}`, { 
                         income_date: data.income_date,
                         include_paid: true // Add this parameter to include all invoices
                     }, function(invoices) {
                         let options = '<option value="">Select Invoice...</option>';
                         let invoiceFound = false;
-
+                        
                         invoices.forEach(inv => {
                             const isSelected = inv.id == data.invoice_id;
                             if (isSelected) invoiceFound = true;
-
+                            
                             options += `
                                 <option value="${inv.id}" ${isSelected ? 'selected' : ''}
                                     data-invoice-number="${inv.invoice_number}"
@@ -3902,7 +3752,7 @@
                                 </option>
                             `;
                         });
-
+                        
                         // If the invoice wasn't found in the list (fully paid), add it manually
                         if (data.invoice_id && !invoiceFound) {
                             options += `
@@ -3919,26 +3769,26 @@
                                 </option>
                             `;
                         }
-
+                        
                         $('#incomeInvoice').html(options).prop('disabled', false);
-
+                        
                         // Set the invoice value
                         if (data.invoice_id) {
                             $('#incomeInvoice').val(data.invoice_id);
                         }
-
+                        
                         // Populate invoice-related fields
                         $('#incomeInvoiceNumber').val(data.invoice_number || '');
                         $('#incomeInvoiceDate').val(data.invoice_date || '');
                         $('#incomeConcept').val(data.concept || '');
-                        $('#incomeInvoicePeriod').val(data.invoice_period || '');
-                        if (data.invoice_value) {
-                            $('#incomeInvoiceValue').val(formatEuro(data.invoice_value));
-                        }
-                        $('#incomeInvoiceValue').data('raw', Number(data.invoice_value || 0));
-                        $('#incomeRemainingBalance').val(formatEuro(data.balance || 0));
-                        $('#incomeRemainingBalance').data('raw', Number(data.balance || 0));
-
+                            $('#incomeInvoicePeriod').val(data.invoice_period || '');
+                            if (data.invoice_value) {
+                                $('#incomeInvoiceValue').val(formatEuro(data.invoice_value));
+                            }
+                            $('#incomeInvoiceValue').data('raw', Number(data.invoice_value || 0));
+                            $('#incomeRemainingBalance').val(formatEuro(data.balance || 0));
+                            $('#incomeRemainingBalance').data('raw', Number(data.balance || 0));
+                        
                         // Set company name fields
                         $('#incomeCompanyName').val(data.company || '');
                         $('#incomeCommercialName').val(data.commercial_name || '');
@@ -3949,7 +3799,7 @@
                                 ${data.invoice_number} - (Recorded Invoice)
                             </option>
                         `).prop('disabled', false);
-
+                        
                         // Populate all fields manually
                         $('#incomeInvoiceNumber').val(data.invoice_number || '');
                         $('#incomeInvoiceDate').val(data.invoice_date || '');
@@ -3969,7 +3819,7 @@
                     $('#incomeCompanyName').val(data.company || '');
                     $('#incomeCommercialName').val(data.commercial_name || '');
                     $('#incomeInvoice').html('<option value="">Select Invoice...</option>').prop('disabled', true);
-
+                    
                     // Manually populate invoice fields if they exist
                     if (data.invoice_number) {
                         $('#incomeInvoiceNumber').val(data.invoice_number);
@@ -3984,16 +3834,16 @@
                         $('#incomeRemainingBalance').data('raw', Number(data.balance || 0));
                     }
                 }
-
+                
                 // Calculate and display total paid
                 calculateTotalPaid();
-
+                
                 // Change modal title
                 $('#incomeModalTitle').text(@json(__('Edit Income')));
-
+                
                 // Re-initialize number formatting
                 initializeNumberFormatting();
-
+                
                 // Show modal
                 $('#incomeModal').modal('show');
             }).fail(function(xhr) {
@@ -4015,9 +3865,7 @@
                     $.ajax({
                         url: `/income/delete/${id}`,
                         type: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                        },
+                        headers: { 'X-CSRF-TOKEN': "{{ csrf_token() }}" },
                         success: function(response) {
                             Swal.fire('Deleted!', response.message, 'success');
                             incomeTable.ajax.reload();
@@ -4036,7 +3884,7 @@
             const end = $('#incomePeriodEnd').val();
             window.location.href = `/income/download/report?start_date=${start}&end_date=${end}`;
         }
-
+        
         // Helper functions
         function formatEuro(num) {
             num = parseFloat(num).toFixed(2);
@@ -4044,13 +3892,13 @@
             parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             return '$ ' + parts.join('.');
         }
-
+        
         function parseFormattedNumber(value) {
             if (!value) return 0;
             const unformatted = unformatNumber(value);
             return parseFloat(unformatted) || 0;
         }
-
+        
         function formatNumberForDisplay(value) {
             if (!value && value !== 0) return '';
             const num = typeof value === 'string' ? parseFormattedNumber(value) : value;
@@ -4078,62 +3926,19 @@
                     d.period_end = $('#validationPeriodEndFilter').val();
                 }
             },
-            columns: [{
-                    data: 'report_type',
-                    name: 'report_type',
-                    width: '80px'
-                },
-                {
-                    data: 'period',
-                    name: 'period',
-                    width: '150px'
-                },
-                {
-                    data: 'title',
-                    name: 'title'
-                },
-                {
-                    data: 'totals',
-                    name: 'totals',
-                    width: '100px',
-                    className: 'text-end'
-                },
-                {
-                    data: 'status',
-                    name: 'status',
-                    width: '150px'
-                },
-                {
-                    data: 'accountant',
-                    name: 'accountant',
-                    width: '120px'
-                },
-                {
-                    data: 'management',
-                    name: 'management',
-                    width: '120px'
-                },
-                {
-                    data: 'creator_name',
-                    name: 'creator.name',
-                    width: '100px'
-                },
-                {
-                    data: 'created_at',
-                    name: 'created_at',
-                    width: '120px'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false,
-                    width: '150px'
-                }
+            columns: [
+                { data: 'report_type', name: 'report_type', width: '80px' },
+                { data: 'period', name: 'period', width: '150px' },
+                { data: 'title', name: 'title' },
+                { data: 'totals', name: 'totals', width: '100px', className: 'text-end' },
+                { data: 'status', name: 'status', width: '150px' },
+                { data: 'accountant', name: 'accountant', width: '120px' },
+                { data: 'management', name: 'management', width: '120px' },
+                { data: 'creator_name', name: 'creator.name', width: '100px' },
+                { data: 'created_at', name: 'created_at', width: '120px' },
+                { data: 'action', name: 'action', orderable: false, searchable: false, width: '150px' }
             ],
-            order: [
-                [0, 'desc']
-            ],
+            order: [[0, 'desc']],
             pageLength: 25,
             responsive: true,
             language: {
@@ -4157,7 +3962,7 @@
         const today = new Date();
         const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
         const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-
+        
         $('#validationPeriodStart').val(firstDay.toISOString().split('T')[0]);
         $('#validationPeriodEnd').val(lastDay.toISOString().split('T')[0]);
 
@@ -4172,7 +3977,7 @@
             const reportType = $('#validationReportType').val();
             const periodStart = $('#validationPeriodStart').val();
             const periodEnd = $('#validationPeriodEnd').val();
-
+            
             if (!reportType || !periodStart || !periodEnd) {
                 Swal.fire({
                     icon: 'error',
@@ -4181,10 +3986,10 @@
                 });
                 return;
             }
-
+            
             const btn = $(this);
             btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Loading...');
-
+            
             $.ajax({
                 url: "/validations/preview",
                 type: 'GET',
@@ -4213,7 +4018,7 @@
         // Create validation form
         $('#createValidationForm').on('submit', function(e) {
             e.preventDefault();
-
+            
             Swal.fire({
                 title: 'Creating Validation Report...',
                 text: 'Please wait while we process the data',
@@ -4223,7 +4028,7 @@
                     Swal.showLoading();
                 }
             });
-
+            
             $.ajax({
                 url: "/validations/create",
                 type: 'POST',
@@ -4259,16 +4064,14 @@
         $('#editValidationForm').on('submit', function(e) {
             e.preventDefault();
             const validationId = $('#editValidationId').val();
-
+            
             Swal.fire({
                 title: 'Updating...',
                 allowOutsideClick: false,
                 showConfirmButton: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
+                didOpen: () => { Swal.showLoading(); }
             });
-
+            
             $.ajax({
                 url: "/validations/" + validationId,
                 type: 'PUT',
@@ -4306,9 +4109,9 @@
                 <p class="mt-2">Loading validation report...</p>
             </div>
         `);
-
+        
         $('#viewValidationModal').modal('show');
-
+        
         $.ajax({
             url: "/validations/view/" + id,
             type: 'GET',
@@ -4367,11 +4170,9 @@
                     title: 'Deleting...',
                     allowOutsideClick: false,
                     showConfirmButton: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
+                    didOpen: () => { Swal.showLoading(); }
                 });
-
+                
                 $.ajax({
                     url: "/validations/" + id,
                     type: 'DELETE',
@@ -4405,9 +4206,9 @@
     // Submit validation (approve/reject)
     function submitValidation(action, validationId) {
         console.log('submitValidation called with:', action, validationId);
-
+        
         const form = document.getElementById('validationDetailForm');
-
+        
         if (!form) {
             console.error('Form not found!');
             Swal.fire({
@@ -4417,19 +4218,19 @@
             });
             return;
         }
-
+        
         const formData = new FormData(form);
         formData.append('action', action);
-
+        
         // Debug: Log all form data
         console.log('Form data entries:');
         for (let pair of formData.entries()) {
             console.log(pair[0] + ': ' + pair[1]);
         }
-
+        
         // Validation checks
         const notes = formData.get('notes');
-
+        
         if (action === 'reject' && (!notes || notes.trim() === '')) {
             Swal.fire({
                 icon: 'error',
@@ -4438,32 +4239,32 @@
             });
             return;
         }
-
+        
         // Check if any items are rejected
         let hasRejectedItems = false;
         let missingNotes = false;
         let missingNotesItemId = null;
-
+        
         const itemSelects = form.querySelectorAll('select[name^="items["]');
         console.log('Found item selects:', itemSelects.length);
-
+        
         itemSelects.forEach(select => {
             console.log('Item status:', select.name, '=', select.value);
-
+            
             if (select.value === 'rejected') {
                 hasRejectedItems = true;
                 const itemId = select.name.match(/\d+/)[0];
                 const notesField = document.querySelector(`textarea[name="items[${itemId}][notes]"]`);
-
+                
                 console.log('Rejected item found:', itemId, 'Notes field:', notesField);
-
+                
                 if (!notesField || !notesField.value.trim()) {
                     missingNotes = true;
                     missingNotesItemId = itemId;
                 }
             }
         });
-
+        
         // Check for missing notes on rejected items
         if (missingNotes) {
             Swal.fire({
@@ -4473,7 +4274,7 @@
             });
             return;
         }
-
+        
         if (hasRejectedItems && action === 'approve') {
             Swal.fire({
                 icon: 'error',
@@ -4482,7 +4283,7 @@
             });
             return;
         }
-
+        
         // Confirmation
         Swal.fire({
             title: `${action === 'approve' ? 'Approve' : 'Reject'} Validation?`,
@@ -4499,13 +4300,11 @@
                     text: 'Please wait',
                     allowOutsideClick: false,
                     showConfirmButton: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
+                    didOpen: () => { Swal.showLoading(); }
                 });
-
+                
                 console.log('Sending AJAX request to:', "/validations/" + validationId + "/submit");
-
+                
                 $.ajax({
                     url: "/validations/" + validationId + "/submit",
                     type: 'POST',
@@ -4518,7 +4317,7 @@
                     success: function(response) {
                         console.log('Success response:', response);
                         Swal.close();
-
+                        
                         if (response.status) {
                             Swal.fire({
                                 icon: 'success',
@@ -4528,7 +4327,7 @@
                                 showConfirmButton: false
                             }).then(() => {
                                 $('#viewValidationModal').modal('hide');
-
+                                
                                 // Reload the DataTable if it exists
                                 const table = $('#validationsTable').DataTable();
                                 if (table) {
@@ -4543,18 +4342,18 @@
                         console.error('AJAX Error:', status, error);
                         console.error('Response:', xhr.responseText);
                         console.error('Status Code:', xhr.status);
-
+                        
                         Swal.close();
-
+                        
                         let errorMessage = 'Something went wrong';
-
+                        
                         if (xhr.responseJSON) {
                             errorMessage = xhr.responseJSON.message || errorMessage;
                             console.error('Error details:', xhr.responseJSON);
                         } else if (xhr.responseText) {
                             errorMessage = xhr.responseText;
                         }
-
+                        
                         Swal.fire({
                             icon: 'error',
                             title: 'Error!',
@@ -4599,10 +4398,7 @@
             preConfirm: () => {
                 const resendTo = document.querySelector('input[name="resend_to"]:checked').value;
                 const unlock = document.getElementById('unlockReport').checked;
-                return {
-                    resendTo,
-                    unlock
-                };
+                return { resendTo, unlock };
             }
         }).then((result) => {
             if (result.isConfirmed) {
@@ -4655,7 +4451,7 @@
         let distributableTable = null;
         let settlementsTable = null;
         let associatesList = [];
-
+        
         // Initialize tables
         function initializeValidatedTable() {
             validatedTable = $('#validatedIncomesTable').DataTable({
@@ -4671,53 +4467,24 @@
                         d.period_end = $('#distributionPeriodEnd').val();
                     }
                 },
-                columns: [{
+                columns: [
+                    {
                         data: 'checkbox',
                         name: 'checkbox',
                         orderable: false,
                         searchable: false,
                         width: '50px'
                     },
-                    {
-                        data: 'company',
-                        name: 'company'
-                    },
-                    {
-                        data: 'commercial_name',
-                        name: 'commercial_name'
-                    },
-                    {
-                        data: 'concept',
-                        name: 'concept'
-                    },
-                    {
-                        data: 'invoice_no',
-                        name: 'invoice_no'
-                    },
-                    {
-                        data: 'invoice_date',
-                        name: 'invoice_date'
-                    },
-                    {
-                        data: 'rc_no',
-                        name: 'rc_no'
-                    },
-                    {
-                        data: 'rc_date',
-                        name: 'rc_date'
-                    },
-                    {
-                        data: 'base_value',
-                        name: 'base_value'
-                    },
-                    {
-                        data: 'vat',
-                        name: 'vat'
-                    },
-                    {
-                        data: 'amount',
-                        name: 'amount'
-                    }
+                    { data: 'company', name: 'company' },
+                    { data: 'commercial_name', name: 'commercial_name' },
+                    { data: 'concept', name: 'concept' },
+                    { data: 'invoice_no', name: 'invoice_no' },
+                    { data: 'invoice_date', name: 'invoice_date' },
+                    { data: 'rc_no', name: 'rc_no' },
+                    { data: 'rc_date', name: 'rc_date' },
+                    { data: 'base_value', name: 'base_value' },
+                    { data: 'vat', name: 'vat' },
+                    { data: 'amount', name: 'amount' }
                 ],
                 drawCallback: function(settings) {
                     updateConceptTotals(settings.json?.concept_totals || []);
@@ -4725,7 +4492,7 @@
                 }
             });
         }
-
+        
         function initializeDistributableTable() {
             distributableTable = $('#distributableIncomesTable').DataTable({
                 processing: true,
@@ -4739,72 +4506,26 @@
                         d.period_end = $('#distributionPeriodEnd').val();
                     }
                 },
-                columns: [{
-                        data: 'distribution_no',
-                        name: 'distribution_no'
-                    },
-                    {
-                        data: 'origin',
-                        name: 'origin'
-                    },
-                    {
-                        data: 'concept',
-                        name: 'concept'
-                    },
-                    {
-                        data: 'distribution_date',
-                        name: 'distribution_date'
-                    },
-                    {
-                        data: 'invoice_no',
-                        name: 'invoice_no'
-                    },
-                    {
-                        data: 'rc_no',
-                        name: 'rc_no'
-                    },
-                    {
-                        data: 'base_value',
-                        name: 'base_value'
-                    },
-                    {
-                        data: 'vat',
-                        name: 'vat'
-                    },
-                    {
-                        data: 'associate_subtotal',
-                        name: 'associate_subtotal'
-                    },
-                    {
-                        data: 'admin_subtotal',
-                        name: 'admin_subtotal'
-                    },
-                    {
-                        data: 'admin_vat',
-                        name: 'admin_vat'
-                    },
-                    {
-                        data: 'admin_total',
-                        name: 'admin_total'
-                    },
-                    {
-                        data: 'total_to_pay',
-                        name: 'total_to_pay'
-                    },
-                    {
-                        data: 'status',
-                        name: 'status'
-                    },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        searchable: false
-                    }
+                columns: [
+                    { data: 'distribution_no', name: 'distribution_no' },
+                    { data: 'origin', name: 'origin' },
+                    { data: 'concept', name: 'concept' },
+                    { data: 'distribution_date', name: 'distribution_date' },
+                    { data: 'invoice_no', name: 'invoice_no' },
+                    { data: 'rc_no', name: 'rc_no' },
+                    { data: 'base_value', name: 'base_value' },
+                    { data: 'vat', name: 'vat' },
+                    { data: 'associate_subtotal', name: 'associate_subtotal' },
+                    { data: 'admin_subtotal', name: 'admin_subtotal' },
+                    { data: 'admin_vat', name: 'admin_vat' },
+                    { data: 'admin_total', name: 'admin_total' },
+                    { data: 'total_to_pay', name: 'total_to_pay' },
+                    { data: 'status', name: 'status' },
+                    { data: 'action', name: 'action', orderable: false, searchable: false }
                 ]
             });
         }
-
+        
         function initializeSettlementsTable(status = null) {
             settlementsTable = $('#settlementsTable').DataTable({
                 processing: true,
@@ -4821,52 +4542,18 @@
                         d.associate_id = $('#settlementAssociateFilter').val();
                     }
                 },
-                columns: [{
-                        data: 'settlement_no',
-                        name: 'settlement_no'
-                    },
-                    {
-                        data: 'origin',
-                        name: 'origin'
-                    },
-                    {
-                        data: 'concept',
-                        name: 'concept'
-                    },
-                    {
-                        data: 'income_month',
-                        name: 'income_month'
-                    },
-                    {
-                        data: 'period_covered',
-                        name: 'period_covered'
-                    },
-                    {
-                        data: 'distribution_formula',
-                        name: 'distribution_formula'
-                    },
-                    {
-                        data: 'total_to_distribute',
-                        name: 'total_to_distribute'
-                    },
-                    {
-                        data: 'amount_to_pay',
-                        name: 'amount_to_pay'
-                    },
-                    {
-                        data: 'distribution_type',
-                        name: 'distribution_type'
-                    },
-                    {
-                        data: 'status',
-                        name: 'status'
-                    },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        searchable: false
-                    }
+                columns: [
+                    { data: 'settlement_no', name: 'settlement_no' },
+                    { data: 'origin', name: 'origin' },
+                    { data: 'concept', name: 'concept' },
+                    { data: 'income_month', name: 'income_month' },
+                    { data: 'period_covered', name: 'period_covered' },
+                    { data: 'distribution_formula', name: 'distribution_formula' },
+                    { data: 'total_to_distribute', name: 'total_to_distribute' },
+                    { data: 'amount_to_pay', name: 'amount_to_pay' },
+                    { data: 'distribution_type', name: 'distribution_type' },
+                    { data: 'status', name: 'status' },
+                    { data: 'action', name: 'action', orderable: false, searchable: false }
                 ],
                 drawCallback: function(settings) {
                     // Update view title based on current status
@@ -4874,15 +4561,15 @@
                 }
             });
         }
-
+        
         // View switcher
         $('#distributionViewFilter').on('change', function() {
             const view = $(this).val();
             currentDistributionView = view;
-
+            
             // Hide all sections
             $('#validatedIncomesSection, #distributableIncomesSection, #settlementsSection').hide();
-
+            
             // Show selected section
             if (view === 'validated') {
                 $('#validatedIncomesSection').show();
@@ -4892,18 +4579,18 @@
                 if (!distributableTable) initializeDistributableTable();
             } else if (view === 'settled' || view === 'paid') {
                 $('#settlementsSection').show();
-
+                
                 // Destroy existing table if it exists
                 if (settlementsTable) {
                     settlementsTable.destroy();
                     settlementsTable = null;
                 }
-
+                
                 // Initialize with correct status
                 initializeSettlementsTable(view === 'paid' ? 'paid' : 'settled');
             }
         });
-
+        
         // Load associates list
         function loadAssociates() {
             $.get("/associates/list", function(data) {
@@ -4915,11 +4602,11 @@
                 $('#settlementAssociateFilter').html(options);
             });
         }
-
+        
         // Initialize on page load
         initializeValidatedTable();
         loadAssociates();
-
+        
         // Update settlements view title
         function updateSettlementsViewTitle() {
             const title = $('#settlementsSection .card-title');
@@ -4929,15 +4616,15 @@
                 title.text('Settlements');
             }
         }
-
+        
         // Filter change handlers
         $('#distributionConceptFilter, #distributionPeriodStart, #distributionPeriodEnd').on('change keyup', function() {
             reloadCurrentTable();
         });
-
+        
         $('#settlementPaymentFilter').on('change', function() {
             const paymentStatus = $(this).val();
-
+            
             if (currentDistributionView === 'paid' && paymentStatus === 'pending') {
                 // If viewing paid settlements and selecting "Not Paid", switch to settled view
                 $('#distributionViewFilter').val('settled').trigger('change');
@@ -4947,25 +4634,25 @@
                 $('#distributionViewFilter').val('paid').trigger('change');
                 return;
             }
-
+            
             // Reload the settlements table
             if (settlementsTable) {
                 settlementsTable.ajax.reload();
             }
         });
-
+        
         $('#settlementAssociateFilter').on('change', function() {
             if (settlementsTable) {
                 settlementsTable.ajax.reload();
             }
         });
-
+        
         $('#clearDistributionFilters').on('click', function() {
             $('#distributionConceptFilter, #distributionPeriodStart, #distributionPeriodEnd').val('');
             $('#settlementPaymentFilter, #settlementAssociateFilter').val('');
             reloadCurrentTable();
         });
-
+        
         function reloadCurrentTable() {
             if (currentDistributionView === 'validated' && validatedTable) {
                 validatedTable.ajax.reload();
@@ -4975,43 +4662,41 @@
                 settlementsTable.ajax.reload();
             }
         }
-
+        
         // Select All functionality
         $('#selectAllHeader').on('click', function() {
             const isChecked = $(this).prop('checked');
             $('.validated-income-checkbox').prop('checked', isChecked);
             updateConceptTotalsFromSelection();
         });
-
+        
         $('#selectAllValidated').on('click', function() {
             const isChecked = $(this).prop('checked');
             $('.validated-income-checkbox').prop('checked', isChecked);
             updateConceptTotalsFromSelection();
         });
-
+        
         $(document).on('change', '.validated-income-checkbox', function() {
             updateSelectAllCheckbox();
             updateConceptTotalsFromSelection();
         });
-
+        
         function updateSelectAllCheckbox() {
             const totalCheckboxes = $('.validated-income-checkbox').length;
             const checkedCheckboxes = $('.validated-income-checkbox:checked').length;
             $('#selectAllHeader').prop('checked', totalCheckboxes > 0 && totalCheckboxes === checkedCheckboxes);
             $('#selectAllValidated').prop('checked', totalCheckboxes > 0 && totalCheckboxes === checkedCheckboxes);
         }
-
+        
         // Concept totals
         function updateConceptTotals(conceptTotals) {
             let html = '';
-            let totalBase = 0,
-                totalVat = 0,
-                totalAmount = 0;
-
+            let totalBase = 0, totalVat = 0, totalAmount = 0;
+            
             conceptTotals.forEach(concept => {
                 totalBase += parseFloat(concept.total_amount) || 0;
                 totalAmount += parseFloat(concept.total_amount) || 0;
-
+                
                 html += `
                     <tr>
                         <td style="width: 35%;"><strong>${concept.concept || 'Uncategorized'}</strong></td>
@@ -5020,7 +4705,7 @@
                     </tr>
                 `;
             });
-
+            
             html += `
                 <tr class="border-top fw-bold">
                     <td>Total Values to Distribute</td>
@@ -5028,20 +4713,18 @@
                     <td>Total Amount: ${formatCurrency(totalAmount)}</td>
                 </tr>
             `;
-
+            
             $('#conceptTotalsTable tbody').html(html);
         }
-
+        
         function updateConceptTotalsFromSelection() {
             let conceptTotals = {};
-            let totalBase = 0,
-                totalVat = 0,
-                totalAmount = 0;
-
+            let totalBase = 0, totalVat = 0, totalAmount = 0;
+            
             $('.validated-income-checkbox:checked').each(function() {
                 const concept = $(this).data('concept') || 'Uncategorized';
                 const amount = parseFloat($(this).data('amount')) || 0;
-
+                
                 if (!conceptTotals[concept]) {
                     conceptTotals[concept] = {
                         concept: concept,
@@ -5049,28 +4732,28 @@
                         item_count: 0
                     };
                 }
-
+                
                 conceptTotals[concept].total_amount += amount;
                 conceptTotals[concept].item_count += 1;
                 totalAmount += amount;
             });
-
+            
             const totalsArray = Object.values(conceptTotals);
             updateConceptTotals(totalsArray);
         }
-
+        
         // Distribute selected items
         $('#distributeSelected').on('click', function() {
             const selectedIds = [];
             $('.validated-income-checkbox:checked').each(function() {
                 selectedIds.push($(this).val());
             });
-
+            
             if (selectedIds.length === 0) {
                 Swal.fire('Error', 'Please select at least one item to distribute', 'error');
                 return;
             }
-
+            
             Swal.fire({
                 title: 'Confirm Distribution',
                 html: `
@@ -5089,21 +4772,21 @@
                         Swal.showValidationMessage('Please select a distribution date');
                         return false;
                     }
-
+                    
                     return $.ajax({
-                            url: "/distributions/create",
-                            type: 'POST',
-                            data: {
-                                item_ids: selectedIds,
-                                distribution_date: distributionDate
-                            },
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            }
-                        }).then(response => response)
-                        .catch(error => {
-                            Swal.showValidationMessage(error.responseJSON?.message || 'Error');
-                        });
+                        url: "/distributions/create",
+                        type: 'POST',
+                        data: {
+                            item_ids: selectedIds,
+                            distribution_date: distributionDate
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    }).then(response => response)
+                    .catch(error => {
+                        Swal.showValidationMessage(error.responseJSON?.message || 'Error');
+                    });
                 }
             }).then((result) => {
                 if (result.isConfirmed && result.value.status) {
@@ -5118,26 +4801,26 @@
                 }
             });
         });
-
+        
         // Settlement modal
         window.openSettlementModal = function(distributionId) {
             // Get distribution details
             $.get(`/distributions/${distributionId}`, function(response) {
                 if (response.status) {
                     const dist = response.distribution;
-
+                    
                     $('#distributionId').val(dist.id);
                     $('#settlementOrigin').val(dist.origin || 'Accounting Department');
                     $('#settlementConcept').val(dist.concept || '');
                     $('#amountToDistributeDisplay').text(formatCurrency(dist.total_to_pay));
                     $('#amountToPayDisplay').text(formatCurrency(dist.total_to_pay));
                     $('#totalToDistribute').val(formatCurrency(dist.total_to_pay));
-
+                    
                     // Set default dates
                     const today = new Date();
                     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
                     $('#incomeMonthStart').val(firstDay.toISOString().split('T')[0]);
-
+                    
                     $('#settlementModalTitle').text(`Settle Distribution: ${dist.distribution_no}`);
                     $('#settlementModal').modal('show');
                 }
@@ -5145,7 +4828,7 @@
                 Swal.fire('Error', 'Failed to load distribution data', 'error');
             });
         };
-
+        
         // Distribution type change
         $('input[name="distribution_type"]').on('change', function() {
             if ($(this).val() === 'manual') {
@@ -5155,24 +4838,24 @@
                 $('#manualDistributionSection').slideUp();
             }
         });
-
+        
         function loadAssociatesForManual() {
             // Clear existing rows
             $('#associatesContainer').html('');
-
+            
             // Add first row
             addAssociateRow();
         }
-
+        
         window.addAssociateRow = function() {
             const rowCount = $('#associatesContainer .associate-row').length;
             const rowId = rowCount + 1;
-
+            
             let associateOptions = '<option value="">Select Associate...</option>';
             associatesList.forEach(associate => {
                 associateOptions += `<option value="${associate.id}">${associate.name}</option>`;
             });
-
+            
             const rowHtml = `
                 <div class="row associate-row mb-2" id="associateRow${rowId}">
                     <div class="col-md-4">
@@ -5201,58 +4884,58 @@
                     </div>
                 </div>
             `;
-
+            
             $('#associatesContainer').append(rowHtml);
             updateTotals();
         };
-
+        
         window.removeAssociateRow = function(rowId) {
             $(`#associateRow${rowId}`).remove();
             updateTotals();
         };
-
+        
         window.updateAssociateCalculation = function(rowId) {
             const type = $(`.distribution-type-select[data-row="${rowId}"]`).val();
             const value = parseFloat($(`.value-input[data-row="${rowId}"]`).val()) || 0;
             const totalToDistribute = parseFloat($('#totalToDistribute').val().replace(/[^0-9.-]+/g, '')) || 0;
-
+            
             let calculatedAmount = 0;
             if (type === 'percentage') {
                 calculatedAmount = (totalToDistribute * value) / 100;
             } else {
                 calculatedAmount = value;
             }
-
+            
             $(`.calculated-amount[data-row="${rowId}"]`).val(formatCurrency(calculatedAmount));
             updateTotals();
         };
-
+        
         function updateTotals() {
             let totalPercentage = 0;
             let totalFixed = 0;
             let totalCalculated = 0;
-
+            
             $('.associate-row').each(function() {
                 const type = $(this).find('.distribution-type-select').val();
                 const value = parseFloat($(this).find('.value-input').val()) || 0;
                 const calculated = parseFloat($(this).find('.calculated-amount').val().replace(/[^0-9.-]+/g, '')) || 0;
-
+                
                 if (type === 'percentage') {
                     totalPercentage += value;
                 } else {
                     totalFixed += value;
                 }
-
+                
                 totalCalculated += calculated;
             });
-
+            
             $('#totalPercentage').val(totalPercentage + '%');
             $('#totalFixed').val(formatCurrency(totalFixed));
-
+            
             // Validate totals
             const totalToDistribute = parseFloat($('#totalToDistribute').val().replace(/[^0-9.-]+/g, '')) || 0;
             const difference = Math.abs(totalCalculated - totalToDistribute);
-
+            
             if (difference > 0.01) {
                 $('#totalPercentage').addClass('is-invalid');
                 $('#totalFixed').addClass('is-invalid');
@@ -5261,59 +4944,59 @@
                 $('#totalFixed').removeClass('is-invalid');
             }
         }
-
+        
         // Settlement form submission
         $('#settlementForm').on('submit', function(e) {
             e.preventDefault();
-
+            
             const distributionType = $('input[name="distribution_type"]:checked').val();
             const associates = [];
             let validationError = false;
-
+            
             if (distributionType === 'manual') {
                 $('.associate-row').each(function() {
                     const associateId = $(this).find('.associate-select').val();
                     const type = $(this).find('.distribution-type-select').val();
                     const value = parseFloat($(this).find('.value-input').val()) || 0;
-
+                    
                     if (!associateId) {
                         Swal.fire('Error', 'Please select an associate for all rows', 'error');
                         validationError = true;
                         return false;
                     }
-
+                    
                     if (value <= 0) {
                         Swal.fire('Error', 'Please enter a valid value for all associates', 'error');
                         validationError = true;
                         return false;
                     }
-
+                    
                     associates.push({
                         id: associateId,
                         type: type,
                         value: value
                     });
                 });
-
+                
                 if (validationError) return;
-
+                
                 // Validate percentage totals
                 const hasPercentages = associates.some(a => a.type === 'percentage');
                 if (hasPercentages) {
                     const totalPercentage = associates
                         .filter(a => a.type === 'percentage')
                         .reduce((sum, a) => sum + a.value, 0);
-
+                    
                     if (Math.abs(totalPercentage - 100) > 0.01) {
                         Swal.fire('Error', 'Total percentage must equal 100%', 'error');
                         return;
                     }
                 }
             }
-
+            
             // Create form data
             const formData = new FormData(this);
-
+            
             // Add associates as array if manual distribution
             if (distributionType === 'manual') {
                 // First, remove any existing associates data
@@ -5322,7 +5005,7 @@
                         formData.delete(key);
                     }
                 }
-
+                
                 // Add associates as array entries
                 associates.forEach((associate, index) => {
                     formData.append(`associates[${index}][id]`, associate.id);
@@ -5330,17 +5013,15 @@
                     formData.append(`associates[${index}][value]`, associate.value);
                 });
             }
-
+            
             Swal.fire({
                 title: 'Creating Settlement...',
                 text: 'Please wait',
                 allowOutsideClick: false,
                 showConfirmButton: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
+                didOpen: () => { Swal.showLoading(); }
             });
-
+            
             $.ajax({
                 url: "/settlements/create",
                 type: 'POST',
@@ -5378,7 +5059,7 @@
                 }
             });
         });
-
+        
         // View settlement details
         window.viewSettlementDetails = function(settlementId) {
             $('#settlementDetailsBody').html(`
@@ -5389,9 +5070,9 @@
                     <p class="mt-2">Loading settlement details...</p>
                 </div>
             `);
-
+            
             $('#settlementDetailsModal').modal('show');
-
+            
             $.ajax({
                 url: "/settlements/" + settlementId,
                 type: 'GET',
@@ -5399,7 +5080,7 @@
                     if (response.status) {
                         const settlement = response.settlement;
                         const associates = response.associates;
-
+                        
                         let html = `
                             <div class="row mb-4">
                                 <div class="col-md-6">
@@ -5442,7 +5123,7 @@
                                     </thead>
                                     <tbody>
                         `;
-
+                        
                         associates.forEach(associate => {
                             html += `
                                 <tr>
@@ -5456,7 +5137,7 @@
                                 </tr>
                             `;
                         });
-
+                        
                         html += `
                                     </tbody>
                                 </table>
@@ -5473,7 +5154,7 @@
                                 ` : ''}
                             </div>
                         `;
-
+                        
                         $('#settlementDetailsBody').html(html);
                     }
                 },
@@ -5487,18 +5168,18 @@
                 }
             });
         };
-
+        
         // Mark settlement as paid
         window.markSettlementPaid = function(settlementId) {
             $('#settlementIdToMarkPaid').val(settlementId);
             $('#markPaidModal').modal('show');
         };
-
+        
         $('#markPaidForm').on('submit', function(e) {
             e.preventDefault();
-
+            
             const settlementId = $('#settlementIdToMarkPaid').val();
-
+            
             Swal.fire({
                 title: 'Mark as Paid?',
                 text: 'This will mark the settlement and all associate payments as paid.',
@@ -5508,27 +5189,27 @@
                 showLoaderOnConfirm: true,
                 preConfirm: () => {
                     return $.ajax({
-                            url: "/settlements/" + settlementId + "/mark-paid",
-                            type: 'POST',
-                            data: $(this).serialize(),
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            }
-                        }).then(response => response)
-                        .catch(error => {
-                            Swal.showValidationMessage(error.responseJSON?.message || 'Error');
-                        });
+                        url: "/settlements/" + settlementId + "/mark-paid",
+                        type: 'POST',
+                        data: $(this).serialize(),
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    }).then(response => response)
+                    .catch(error => {
+                        Swal.showValidationMessage(error.responseJSON?.message || 'Error');
+                    });
                 }
             }).then((result) => {
                 if (result.isConfirmed && result.value.status) {
                     Swal.fire('Success', result.value.message, 'success');
                     $('#markPaidModal').modal('hide');
                     $('#markPaidForm')[0].reset();
-
+                    
                     // Reload tables
                     if (settlementsTable) settlementsTable.ajax.reload();
                     $('#settlementDetailsModal').modal('hide');
-
+                    
                     // Switch to paid view if not already there
                     if (currentDistributionView === 'settled') {
                         $('#distributionViewFilter').val('paid').trigger('change');
@@ -5536,32 +5217,32 @@
                 }
             });
         });
-
+        
         // Download settlement report
         window.downloadSettlementReport = function(settlementId) {
             window.open("/settlements/" + settlementId + "/download", '_blank');
         };
-
+        
         // Download settlements report
         window.downloadSettlementsReport = function() {
-            const status = currentDistributionView === 'paid' ? 'paid' :
-                currentDistributionView === 'settled' ? 'settled' :
-                $('#settlementPaymentFilter').val();
+            const status = currentDistributionView === 'paid' ? 'paid' : 
+                          currentDistributionView === 'settled' ? 'settled' : 
+                          $('#settlementPaymentFilter').val();
             const associateId = $('#settlementAssociateFilter').val();
             const concept = $('#distributionConceptFilter').val();
             const periodStart = $('#distributionPeriodStart').val();
             const periodEnd = $('#distributionPeriodEnd').val();
-
+            
             let url = "/settlements/report/download?";
             if (status) url += "status=" + status + "&";
             if (associateId) url += "associate_id=" + associateId + "&";
             if (concept) url += "concept=" + encodeURIComponent(concept) + "&";
             if (periodStart) url += "period_start=" + periodStart + "&";
             if (periodEnd) url += "period_end=" + periodEnd;
-
+            
             window.open(url, '_blank');
         };
-
+        
         // Helper function to format currency
         function formatCurrency(amount) {
             if (typeof amount !== 'number') {
@@ -5583,7 +5264,7 @@
                     if (response.status) {
                         const settlement = response.settlement;
                         const associates = response.associates;
-
+                        
                         let html = `
                             <div class="modal-header">
                                 <h5 class="modal-title">Settlement Associates - ${settlement.settlement_no}</h5>
@@ -5611,7 +5292,7 @@
                                         </thead>
                                         <tbody>
                         `;
-
+                        
                         associates.forEach(associate => {
                             html += `
                                 <tr>
@@ -5625,7 +5306,7 @@
                                 </tr>
                             `;
                         });
-
+                        
                         html += `
                                         </tbody>
                                     </table>
@@ -5641,7 +5322,7 @@
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             </div>
                         `;
-
+                        
                         // Create a new modal for associates
                         const modalId = 'associatesModal' + settlementId;
                         let modalHtml = `
@@ -5653,13 +5334,13 @@
                                 </div>
                             </div>
                         `;
-
+                        
                         // Remove existing modal if any
                         $('#' + modalId).remove();
-
+                        
                         // Add modal to body
                         $('body').append(modalHtml);
-
+                        
                         // Show modal
                         const modal = new bootstrap.Modal(document.getElementById(modalId));
                         modal.show();
@@ -5683,16 +5364,16 @@
                 window.portfolioDataLoaded = true;
             }
         });
-
+        
         // Filter change handlers
         $('#portfolioPeriodMonth, #portfolioPeriodYear, #portfolioAgingFilter').on('change', function() {
             loadPortfolioData();
         });
-
+        
         $('#portfolioClientFilter').on('keyup', debounce(function() {
             loadPortfolioData();
         }, 500));
-
+        
         // Comment form submission
         $('#commentForm').on('submit', function(e) {
             e.preventDefault();
@@ -5706,7 +5387,7 @@
         const periodYear = $('#portfolioPeriodYear').val();
         const clientFilter = $('#portfolioClientFilter').val();
         const agingFilter = $('#portfolioAgingFilter').val();
-
+        
         $('#portfolioDataContainer').html(`
             <div class="text-center py-5">
                 <div class="spinner-border text-primary" role="status">
@@ -5715,7 +5396,7 @@
                 <p class="mt-2">Loading portfolio data...</p>
             </div>
         `);
-
+        
         $.ajax({
             url: '/portfolio/data',
             type: 'GET',
@@ -5745,7 +5426,7 @@
         $('#total_31_90').text(formatCurrency(grandTotals['31_90']));
         $('#total_90_plus').text(formatCurrency(grandTotals['90_plus']));
         $('#total_ar').text(formatCurrency(grandTotals.total));
-
+        
         if (data.length === 0) {
             $('#portfolioDataContainer').html(`
                 <div class="alert alert-info text-center">
@@ -5755,9 +5436,9 @@
             `);
             return;
         }
-
+        
         let html = '';
-
+        
         data.forEach(client => {
             html += `
                 <div class="card mb-3">
@@ -5794,7 +5475,7 @@
                                 </thead>
                                 <tbody>
             `;
-
+            
             client.invoices.forEach(invoice => {
                 const commentBadge = invoice.comment ? getCommentBadge(invoice.comment) : '<span class="badge bg-secondary">No Comment</span>';
                 const rowClass = invoice.days_old > 90 ? 'table-danger' : invoice.days_old > 30 ? 'table-warning' : '';
@@ -5813,7 +5494,7 @@
                     </tr>
                 `;
             });
-
+            
             html += `
                                 </tbody>
                             </table>
@@ -5822,32 +5503,20 @@
                 </div>
             `;
         });
-
+        
         $('#portfolioDataContainer').html(html);
     }
 
     // Get comment badge HTML
     function getCommentBadge(comment) {
         const statusMap = {
-            'pending': {
-                color: 'warning',
-                icon: 'ri-time-line',
-                text: 'Pending'
-            },
-            'approved': {
-                color: 'success',
-                icon: 'ri-check-line',
-                text: 'Approved'
-            },
-            'rejected': {
-                color: 'danger',
-                icon: 'ri-close-line',
-                text: 'Rejected'
-            }
+            'pending': { color: 'warning', icon: 'ri-time-line', text: 'Pending' },
+            'approved': { color: 'success', icon: 'ri-check-line', text: 'Approved' },
+            'rejected': { color: 'danger', icon: 'ri-close-line', text: 'Rejected' }
         };
-
+        
         const status = statusMap[comment.status] || statusMap.pending;
-
+        
         return `
             <div class="dropdown">
                 <button class="badge bg-${status.color} border-0 type="button" aria-expanded="false">
@@ -5862,9 +5531,9 @@
         const hasComment = invoice.comment !== null;
         const canModify = hasComment ? invoice.comment.can_modify : true;
         const canApprove = hasComment ? invoice.comment.can_approve : false;
-
+        
         let buttons = '<div class="btn-group btn-group-sm">';
-
+        
         if (canModify) {
             buttons += `
                 <button type="button" class="btn btn-soft-primary" 
@@ -5881,7 +5550,7 @@
                     <iconify-icon icon="solar:chat-round-line-bold"></iconify-icon>    
                 </button>
             `;
-
+            
             if (hasComment) {
                 buttons += `
                     <button type="button" class="btn btn-soft-danger" 
@@ -5892,7 +5561,7 @@
                 `;
             }
         }
-
+        
         if (canApprove) {
             buttons += `
                 <button type="button" class="btn btn-soft-success" 
@@ -5902,7 +5571,7 @@
                 </button>
             `;
         }
-
+        
         if (hasComment && invoice.comment.status === 'approved') {
             buttons += `
                 <button type="button" class="btn btn-soft-info" disabled title="Comment Locked">
@@ -5910,9 +5579,9 @@
                 </button>
             `;
         }
-
+        
         buttons += '</div>';
-
+        
         return buttons;
     }
 
@@ -5922,11 +5591,11 @@
         $('#commentInvoiceId').val(data.invoice_id);
         $('#commentPeriodMonth').val(data.period_month);
         $('#commentPeriodYear').val(data.period_year);
-
+        
         $('#commentClientName').val(data.client_name);
         $('#commentInvoiceNumber').val(data.invoice_number);
         $('#commentText').val(data.comment ? data.comment.text : '');
-
+        
         $('#commentModalTitle').text(data.comment ? 'Edit Comment' : 'Add Comment');
         $('#commentModal').modal('show');
     }
@@ -5940,7 +5609,7 @@
             period_year: $('#commentPeriodYear').val(),
             comment: $('#commentText').val()
         };
-
+        
         $.ajax({
             url: '/portfolio/comments/store',
             type: 'POST',
@@ -5982,7 +5651,7 @@
     // Submit comment approval
     function submitCommentApproval(action) {
         const commentId = $('#approveCommentId').val();
-
+        
         if (action === 'reject') {
             const reason = $('#rejectionReason').val();
             if (!reason) {
@@ -5991,31 +5660,31 @@
                 return;
             }
         }
-
+        
         Swal.fire({
             title: `${action === 'approve' ? 'Approve' : 'Reject'} Comment?`,
-            text: action === 'approve' ?
-                'This comment will be locked and cannot be modified.' :
-                'This comment will be rejected and can be edited.',
+            text: action === 'approve' 
+                ? 'This comment will be locked and cannot be modified.' 
+                : 'This comment will be rejected and can be edited.',
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: `Yes, ${action}!`,
             showLoaderOnConfirm: true,
             preConfirm: () => {
                 return $.ajax({
-                        url: `/portfolio/comments/${commentId}/approve`,
-                        type: 'POST',
-                        data: {
-                            action: action,
-                            rejection_reason: $('#rejectionReason').val()
-                        },
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        }
-                    }).then(response => response)
-                    .catch(error => {
-                        Swal.showValidationMessage(error.responseJSON?.message || 'Error');
-                    });
+                    url: `/portfolio/comments/${commentId}/approve`,
+                    type: 'POST',
+                    data: {
+                        action: action,
+                        rejection_reason: $('#rejectionReason').val()
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                }).then(response => response)
+                .catch(error => {
+                    Swal.showValidationMessage(error.responseJSON?.message || 'Error');
+                });
             }
         }).then((result) => {
             if (result.isConfirmed && result.value.status) {
@@ -6063,11 +5732,11 @@
         const periodYear = $('#portfolioPeriodYear').val();
         const clientFilter = $('#portfolioClientFilter').val();
         const agingFilter = $('#portfolioAgingFilter').val();
-
+        
         let url = `/portfolio/export?period_month=${periodMonth}&period_year=${periodYear}`;
         if (clientFilter) url += `&client_filter=${encodeURIComponent(clientFilter)}`;
         if (agingFilter) url += `&aging_filter=${agingFilter}`;
-
+        
         window.open(url, '_blank');
     }
 

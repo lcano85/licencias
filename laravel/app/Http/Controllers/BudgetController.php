@@ -44,16 +44,14 @@ use App\Models\ReceiptConsecutive;
 
 class BudgetController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('permission:list-budget|create-budget|edit-budget|delete-budget', ['only' => ['index', 'show']]);
-        $this->middleware('permission:create-budget', ['only' => ['create', 'store']]);
-        $this->middleware('permission:edit-budget', ['only' => ['edit', 'update']]);
+    public function __construct() {
+        $this->middleware('permission:list-budget|create-budget|edit-budget|delete-budget', ['only' => ['index','show']]);
+        $this->middleware('permission:create-budget', ['only' => ['create','store']]);
+        $this->middleware('permission:edit-budget', ['only' => ['edit','update']]);
         $this->middleware('permission:delete-budget', ['only' => ['destroy']]);
     }
 
-    public function index(Request $request): View
-    {
+    public function index(Request $request): View {
         $pageTitle = 'Budgets';
         $clients = Clients::all();
         $month = $request->month ?? date('n');
@@ -68,21 +66,20 @@ class BudgetController extends Controller
         $environments = Environment::pluck('name', 'name')->toArray();
 
         $totals = $this->calculateTotalsByConcept($month, $year, $startDate, $endDate);
-
+        
         return view('budget.index', compact('pageTitle', 'totals', 'clients', 'month', 'year', 'banks', 'criterions', 'clientCategories', 'receiptConsecutives', 'environments'));
     }
 
     /** Timeframe overlap filter helper */
-    private function applyTimeframeFilter($query, ?string $startDate, ?string $endDate)
-    {
+    private function applyTimeframeFilter($query, ?string $startDate, ?string $endDate) {
         if ($startDate || $endDate) {
             $query->where(function ($q) use ($startDate, $endDate) {
                 if ($startDate && $endDate) {
                     // Both dates provided - budget period must overlap with filter range
-                    $q->where(function ($subQ) use ($startDate, $endDate) {
+                    $q->where(function($subQ) use ($startDate, $endDate) {
                         // Budget begins before or during filter range AND ends after or during filter range
                         $subQ->whereRaw("CONCAT(begin_year, '-', LPAD(begin_month, 2, '0')) <= ?", [$endDate])
-                            ->whereRaw("CONCAT(finish_year, '-', LPAD(finish_month, 2, '0')) >= ?", [$startDate]);
+                             ->whereRaw("CONCAT(finish_year, '-', LPAD(finish_month, 2, '0')) >= ?", [$startDate]);
                     });
                 } elseif ($startDate) {
                     // Only start date - budget must end on or after start date
@@ -96,8 +93,7 @@ class BudgetController extends Controller
     }
 
     /** Inclusive month difference */
-    private function monthsDiffInclusive(int $bMonth, int $bYear, int $fMonth, int $fYear): int
-    {
+    private function monthsDiffInclusive(int $bMonth, int $bYear, int $fMonth, int $fYear): int {
         $begin  = Carbon::create($bYear, $bMonth, 1);
         $finish = Carbon::create($fYear, $fMonth, 1);
         if ($finish->lt($begin)) {
@@ -109,8 +105,7 @@ class BudgetController extends Controller
     }
 
     /** Core calculator for budget values */
-    private function buildCalculatedBudget(?string $frequency, ?float $annualValue, int $bMonth, int $bYear, ?int $fMonth, ?int $fYear, float $vatPercent): array
-    {
+    private function buildCalculatedBudget(?string $frequency, ?float $annualValue, int $bMonth, int $bYear, ?int $fMonth, ?int $fYear, float $vatPercent): array {
         $frequency = $frequency ?: 'Monthly';
 
         // Default finish for Monthly: 12 months inclusive
@@ -128,7 +123,7 @@ class BudgetController extends Controller
         }
 
         $subTotal = $monthlyAmount ?? 0.0;
-        $total    = $subTotal + ($subTotal * ($vatPercent / 100));
+        $total    = $subTotal + ($subTotal * ($vatPercent/100));
 
         return [
             'frequency'      => $frequency,
@@ -142,14 +137,12 @@ class BudgetController extends Controller
     }
 
     /** Format currency as $1,000.00 */
-    private function formatCurrency($amount)
-    {
+    private function formatCurrency($amount) {
         return '$' . number_format((float)$amount, 2, '.', ',');
     }
 
     // Helper function to parse formatted numbers
-    private function parseFormattedNumber($value)
-    {
+    private function parseFormattedNumber($value) {
         if ($value === null || $value === '') return 0;
 
         $raw = trim((string) $value);
@@ -185,8 +178,7 @@ class BudgetController extends Controller
         return $isNegative ? -$parsed : $parsed;
     }
 
-    public function getAjaxData(Request $request)
-    {
+    public function getAjaxData(Request $request) {
         if ($request->has('get_totals')) {
             $month  = $request->month ?: null;
             $year   = $request->year ?: null;
@@ -194,7 +186,7 @@ class BudgetController extends Controller
             $end    = $request->end_date ?: null;
             $conceptFilter = $request->conceptFilter ?: null;
             $conditionFilter = $request->conditionFilter ?: null;
-
+            
             $totals = $this->calculateTotalsByConcept($month, $year, $start, $end, $conceptFilter, $conditionFilter);
             return response()->json([
                 'success'    => true,
@@ -207,53 +199,53 @@ class BudgetController extends Controller
             $data = Budget::select('id', 'commercialID', 'user_type', 'company', 'commercialName', 'concept', 'subTotal', 'vat', 'total', 'condition', 'status', 'created_by', 'created_at', 'licensedConcept', 'licensedEnvironment', 'budget_month', 'budget_year', 'begin_month', 'begin_year', 'finish_month', 'finish_year', 'billing_frequency', 'annual_value', 'total_months', 'monthly_value', 'license_pdf', 'category', 'subcategory');
 
             // Advanced filters
-            if ($request->filled('commercialName')) {
-                $data->where('commercialName', 'like', '%' . $request->commercialName . '%');
+            if ($request->filled('commercialName')) { 
+                $data->where('commercialName', 'like', '%'.$request->commercialName.'%'); 
             }
-            if ($request->filled('company')) {
-                $data->where('company', 'like', '%' . $request->company . '%');
+            if ($request->filled('company')) { 
+                $data->where('company', 'like', '%'.$request->company.'%'); 
             }
-            if ($request->filled('category')) {
-                $data->where('category', $request->category);
+            if ($request->filled('category')) { 
+                $data->where('category', $request->category); 
             }
-            if ($request->filled('subcategory')) {
-                $data->where('subcategory', $request->subcategory);
+            if ($request->filled('subcategory')) { 
+                $data->where('subcategory', $request->subcategory); 
             }
-            if ($request->filled('licensedConcept')) {
-                $data->where('licensedConcept', $request->licensedConcept);
+            if ($request->filled('licensedConcept')) { 
+                $data->where('licensedConcept', $request->licensedConcept); 
             }
-            if ($request->filled('licensedEnvironment')) {
-                $data->where('licensedEnvironment', $request->licensedEnvironment);
+            if ($request->filled('licensedEnvironment')) { 
+                $data->where('licensedEnvironment', $request->licensedEnvironment); 
             }
-            if ($request->filled('statusFilter')) {
-                $data->where('status', $request->statusFilter);
+            if ($request->filled('statusFilter')) { 
+                $data->where('status', $request->statusFilter); 
             }
 
             // Month/Year filters - only apply if they have values
-            if ($request->filled('month') && $request->month != '') {
-                $data->where('budget_month', $request->month);
+            if ($request->filled('month') && $request->month != '') { 
+                $data->where('budget_month', $request->month); 
             }
-            if ($request->filled('year') && $request->year != '') {
-                $data->where('budget_year', $request->year);
+            if ($request->filled('year') && $request->year != '') { 
+                $data->where('budget_year', $request->year); 
             }
 
             // *** CONCEPT FILTER (User Type) ***
             if ($request->filled('conceptFilter') && $request->conceptFilter != '') {
                 $data->where('user_type', 'like', '%' . $request->conceptFilter . '%');
             }
-
+            
             // *** CONDITION FILTER ***
             if ($request->filled('conditionFilter') && $request->conditionFilter != '') {
                 $data->where('condition', $request->conditionFilter);
             }
-
+                
             // Apply timeframe filter (Initial/Final months)
             $this->applyTimeframeFilter($data, $request->start_date, $request->end_date);
-
+            
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('created_at', function ($row) {
-                    if (!empty($row->created_at)) {
+                    if(!empty($row->created_at)){
                         return date('d-m-Y', strtotime($row->created_at));
                     }
                 })
@@ -262,7 +254,7 @@ class BudgetController extends Controller
                 ->addColumn('user_type', fn($row) => $row->user_type ?: 'N/A')
                 ->addColumn('concept', fn($row) => $row->concept ? Str::limit($row->concept, 50) : 'N/A')
                 ->addColumn('subTotal', fn($row) => $this->formatCurrency($row->subTotal))
-                ->addColumn('vat', fn($row) => $row->vat . '%')
+                ->addColumn('vat', fn($row) => $row->vat.'%')
                 ->addColumn('total', fn($row) => $this->formatCurrency($row->total))
                 ->addColumn('annual_value', fn($row) => $this->formatCurrency($row->annual_value))
                 ->addColumn('condition', function ($row) {
@@ -305,24 +297,24 @@ class BudgetController extends Controller
                     $pdfBtn = '';
 
                     $buttons = '<div class="btn-group" role="group">
-                        <a href="' . $editRoute . '" class="btn btn-soft-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                        <a href="'. $editRoute .'" class="btn btn-soft-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                             <iconify-icon icon="solar:pen-new-square-linear" class="fs-18"></iconify-icon>
                         </a>
                         <a href="' . $viewRoute . '" class="btn btn-soft-info btn-sm" title="View" data-bs-toggle="tooltip" data-bs-placement="top">
                             <iconify-icon icon="solar:eye-bold" class="fs-18"></iconify-icon>
                         </a>'
                         . $pdfBtn .
-                        '<a href="javascript:void(0)" class="btn btn-soft-danger btn-sm" onclick="deleteActivity(' . $dataId . ')" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                        '<a href="javascript:void(0)" class="btn btn-soft-danger btn-sm" onclick="deleteActivity('.$dataId.')" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
                             <iconify-icon icon="solar:trash-bin-trash-bold" class="fs-18"></iconify-icon>
                         </a>
-                        <a href="javascript:void(0)" class="btn btn-soft-success btn-sm ' . $invoiceDisabled . '" onclick="' . ($isInvoiced ? 'return false;' : 'invoiceGenerate(' . $dataId . ')') . ' " data-bs-toggle="tooltip" data-bs-placement="top" title="' . $invoiceTitle . '">
-                            <iconify-icon icon="solar:file-download-outline" class="fs-18 ' . $invoiceIconColor . '"></iconify-icon>
+                        <a href="javascript:void(0)" class="btn btn-soft-success btn-sm '.$invoiceDisabled.'" onclick="'.($isInvoiced ? 'return false;' : 'invoiceGenerate('.$dataId.')').' " data-bs-toggle="tooltip" data-bs-placement="top" title="'.$invoiceTitle.'">
+                            <iconify-icon icon="solar:file-download-outline" class="fs-18 '.$invoiceIconColor.'"></iconify-icon>
                         </a>
                     </div>';
 
                     return $buttons;
                 })
-                ->addColumn('row_class', function ($row) {
+                ->addColumn('row_class', function($row) {
                     $endOfMonth = Carbon::now()->endOfMonth();
                     $daysUntilEndOfMonth = Carbon::now()->diffInDays($endOfMonth, false);
                     if ($row->status != 2 && $daysUntilEndOfMonth <= 10 && $daysUntilEndOfMonth >= 0) {
@@ -337,16 +329,14 @@ class BudgetController extends Controller
         return response()->json(['error' => 'Unauthorized'], 403);
     }
 
-    public function create()
-    {
+    public function create() {
         $pageTitle = 'Add Budget';
         $clients = Clients::all();
         $userTypes = UseTypes::where('use_types_status', 1)->get();
         return view('budget.create', compact('clients', 'pageTitle', 'userTypes'));
     }
 
-    public function getUserType($clientId)
-    {
+    public function getUserType($clientId) {
         $client = Clients::find($clientId);
         if (!$client) {
             return response()->json([
@@ -363,17 +353,17 @@ class BudgetController extends Controller
         $useTypesVal = '';
         $licensedEnvironment = '';
         $licensedEnvironmentId = '';
-
-        if ($license && !empty($license->licensedEnvironment)) {
+        
+        if($license && !empty($license->licensedEnvironment)){
             $licensedEnvironmentId = $license->licensedEnvironment;
             // Handle multipick (array or single value)
             $envMap = Environment::pluck('name', 'id')->toArray();
-            if (is_array($license->licensedEnvironment)) {
+            if(is_array($license->licensedEnvironment)) {
                 $names = array_map(fn($id) => $envMap[$id] ?? '', $license->licensedEnvironment);
                 $licensedEnvironment = implode(', ', $names);
             } else {
                 $decoded = json_decode($license->licensedEnvironment, true);
-                if (is_array($decoded)) {
+                if(is_array($decoded)) {
                     $names = array_map(fn($id) => $envMap[$id] ?? '', $decoded);
                     $licensedEnvironment = implode(', ', $names);
                 } else {
@@ -381,28 +371,28 @@ class BudgetController extends Controller
                 }
             }
         }
-
-        if ($useTypes && !empty($useTypes->use_types_name)) {
+        
+        if($useTypes && !empty($useTypes->use_types_name)){
             $useTypesVal = $useTypes->use_types_name;
         }
         $category = ClientCategory::where('id', $client->categoryID)->first();
         $categoryVal = '';
-        if (!empty($category->category_name)) {
+        if(!empty($category->category_name)){
             $categoryVal = $category->category_name;
         }
 
         $subcategory = ClientSubCategory::where('id', $client->subcategoryID)->first();
         $subcategoryVal = '';
-        if (!empty($subcategory->subcategory_name)) {
+        if(!empty($subcategory->subcategory_name)){
             $subcategoryVal = $subcategory->subcategory_name;
         }
         $billingFrequency = $license->billing_frequency ?? 'Monthly';
 
         $companyVal = '';
-        if (!empty($client->legalName)) {
+        if(!empty($client->legalName)){
             $companyVal = $client->legalName;
         }
-
+        
         return response()->json([
             'userType' => $useTypesVal,
             'licensedEnvironment' => $licensedEnvironment,
@@ -419,8 +409,7 @@ class BudgetController extends Controller
         ]);
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $userID = Auth::id();
 
         $request->validate([
@@ -447,7 +436,7 @@ class BudgetController extends Controller
         $finishYear  = (int) $request->finish_year;
 
         $monthsTotal = (($finishYear - $beginYear) * 12)
-            + ($finishMonth - $beginMonth) + 1;
+                     + ($finishMonth - $beginMonth) + 1;
 
         $monthlyValue = $annualValue
             ? round($annualValue / $monthsTotal, 2)
@@ -464,7 +453,7 @@ class BudgetController extends Controller
 
             'begin_month' => $beginMonth,
             'begin_year'  => $beginYear,
-            'finish_month' => $finishMonth,
+            'finish_month'=> $finishMonth,
             'finish_year' => $finishYear,
 
             'billing_frequency' => $request->newFrequency,
@@ -496,8 +485,7 @@ class BudgetController extends Controller
         return redirect()->route('budgets')->with('success', 'Budget created for all months successfully.');
     }
 
-    public function edit(Request $request, $id)
-    {
+    public function edit(Request $request, $id) {
         $pageTitle = 'Edit Budget';
         $budget = Budget::findOrFail($id);
         $clients = Clients::all();
@@ -505,8 +493,7 @@ class BudgetController extends Controller
         return view('budget.edit', compact('clients', 'pageTitle', 'userTypes', 'budget'));
     }
 
-    public function update(Request $request, $id)
-    {
+    public function update(Request $request, $id) {
         $userID = Auth::user()->id;
 
         $request->validate([
@@ -543,8 +530,7 @@ class BudgetController extends Controller
         $calc = $this->buildCalculatedBudget(
             $request->frequency ?? $budget->billing_frequency,
             $annualValue !== null ? $annualValue : $budget->annual_value,
-            $bMonth,
-            $bYear,
+            $bMonth, $bYear,
             $request->finish_month ? (int)$request->finish_month : ($budget->finish_month ?? null),
             $request->finish_year  ? (int)$request->finish_year  : ($budget->finish_year ?? null),
             $vatPercent
@@ -569,7 +555,7 @@ class BudgetController extends Controller
         } else {
             $budget->subTotal = $subTotal ?? $budget->subTotal;
             $budget->vat      = $vatPercent;
-            $budget->total    = $total ?? ($budget->subTotal + ($budget->subTotal * $vatPercent / 100));
+            $budget->total    = $total ?? ($budget->subTotal + ($budget->subTotal * $vatPercent/100));
         }
 
         $budget->condition           = $request->condition;
@@ -608,8 +594,7 @@ class BudgetController extends Controller
     }
 
 
-    public function view(Request $request, $id)
-    {
+    public function view(Request $request, $id) {
         $pageTitle = 'View Budget';
 
         $budget = Budget::findOrFail($id);
@@ -656,13 +641,13 @@ class BudgetController extends Controller
         }
 
         $beginYm   = $budget->begin_year && $budget->begin_month
-            ? sprintf('%s %s', date('F', mktime(0, 0, 0, (int)$budget->begin_month, 1)), $budget->begin_year)
+            ? sprintf('%s %s', date('F', mktime(0,0,0,(int)$budget->begin_month,1)), $budget->begin_year)
             : 'N/A';
         $finishYm  = $budget->finish_year && $budget->finish_month
-            ? sprintf('%s %s', date('F', mktime(0, 0, 0, (int)$budget->finish_month, 1)), $budget->finish_year)
+            ? sprintf('%s %s', date('F', mktime(0,0,0,(int)$budget->finish_month,1)), $budget->finish_year)
             : 'N/A';
         $budgetYm  = ($budget->budget_month && $budget->budget_year)
-            ? sprintf('%s %s', date('F', mktime(0, 0, 0, (int)$budget->budget_month, 1)), $budget->budget_year)
+            ? sprintf('%s %s', date('F', mktime(0,0,0,(int)$budget->budget_month,1)), $budget->budget_year)
             : 'N/A';
 
         $fmt = fn($n) => '$' . number_format((float)$n, 2, ',', '.');
@@ -697,61 +682,59 @@ class BudgetController extends Controller
         return view('budget.view', compact('pageTitle', 'budget', 'display'));
     }
 
-    public function destroy(Request $request, $id)
-    {
-        $budget = Budget::find($id);
-        if (!$budget) {
-            return response()->json(['error' => 'Record not found!'], 404);
-        }
-
-        // Ã°Å¸â€Â¥ CASCADE DELETE: Delete all connected records
-
-        // 1. Get all invoices for this budget
-        $invoices = RegisterInvoice::where('budgetID', $id)->get();
-
-        foreach ($invoices as $invoice) {
-            // Delete cash receipts for this invoice
-            CashReceipt::where('invoice_id', $invoice->id)->delete();
-
-            // Delete credit notes for this invoice
-            CreditNote::where('invoice_id', $invoice->id)->delete();
-
-            // Delete portfolio comments for this invoice
-            PortfolioComment::where('invoice_id', $invoice->id)->delete();
-
-            // Delete validation items for this invoice
-            ValidationItem::where('item_type', 'invoice')
-                ->where('item_id', $invoice->id)
-                ->delete();
-
-            // Delete income records linked to this invoice
-            $incomeRecords = IncomeRecord::where('invoice_id', $invoice->id)->get();
-            foreach ($incomeRecords as $income) {
-                // Delete distributions linked to this income
-                Distribution::where('income_id', $income->id)->delete();
-
-                // Delete the income record
-                $income->delete();
-            }
-
-            // Delete the invoice itself
-            $invoice->delete();
-        }
-
-        // 2. Delete validation items for this budget
-        ValidationItem::where('item_type', 'budget')
-            ->where('item_id', $id)
-            ->delete();
-
-        // 3. Delete the budget
-        $budget->delete();
-
-        return response()->json(['success' => 'Budget and all connected records deleted successfully!']);
+    public function destroy(Request $request, $id) {
+    $budget = Budget::find($id);
+    if (!$budget) {
+        return response()->json(['error' => 'Record not found!'], 404);
     }
+    
+    // Ã°Å¸â€Â¥ CASCADE DELETE: Delete all connected records
+    
+    // 1. Get all invoices for this budget
+    $invoices = RegisterInvoice::where('budgetID', $id)->get();
+    
+    foreach ($invoices as $invoice) {
+        // Delete cash receipts for this invoice
+        CashReceipt::where('invoice_id', $invoice->id)->delete();
+        
+        // Delete credit notes for this invoice
+        CreditNote::where('invoice_id', $invoice->id)->delete();
+        
+        // Delete portfolio comments for this invoice
+        PortfolioComment::where('invoice_id', $invoice->id)->delete();
+        
+        // Delete validation items for this invoice
+        ValidationItem::where('item_type', 'invoice')
+            ->where('item_id', $invoice->id)
+            ->delete();
+        
+        // Delete income records linked to this invoice
+        $incomeRecords = IncomeRecord::where('invoice_id', $invoice->id)->get();
+        foreach ($incomeRecords as $income) {
+            // Delete distributions linked to this income
+            Distribution::where('income_id', $income->id)->delete();
+            
+            // Delete the income record
+            $income->delete();
+        }
+        
+        // Delete the invoice itself
+        $invoice->delete();
+    }
+    
+    // 2. Delete validation items for this budget
+    ValidationItem::where('item_type', 'budget')
+        ->where('item_id', $id)
+        ->delete();
+    
+    // 3. Delete the budget
+    $budget->delete();
+    
+    return response()->json(['success' => 'Budget and all connected records deleted successfully!']);
+}
 
 
-    public function getBudgetRecord(Request $request, $id)
-    {
+    public function getBudgetRecord(Request $request, $id) {
         $budget = Budget::find($id);
         if (!$budget) {
             return response()->json(['error' => 'Budget not found'], 404);
@@ -776,7 +759,7 @@ class BudgetController extends Controller
 
         $criterions = BudgetCriterion::get();
         $consecutives = InvoiceConsecutive::get();
-
+        
         return response()->json([
             'budgetID' => $budget->id,
             'userTypeName' => $userTypeName,
@@ -798,8 +781,7 @@ class BudgetController extends Controller
         ]);
     }
 
-    public function generateInvoice(Request $request)
-    {
+    public function generateInvoice(Request $request){
         $validated = $request->validate([
             'budgetID' => 'required',
             'criterion' => 'required',
@@ -906,8 +888,7 @@ class BudgetController extends Controller
         }
     }
 
-    public function getInvoiceData(Request $request)
-    {
+    public function getInvoiceData(Request $request){
         if ($request->ajax()) {
             $start = $request->get('start_date');
             $end   = $request->get('end_date');
@@ -918,17 +899,17 @@ class BudgetController extends Controller
             $criterion = $request->get('criterion');
 
             $data = RegisterInvoice::select(
-                'register_invoice.id',
-                'register_invoice.budgetID',
-                'register_invoice.invoiceNumber',
-                'register_invoice.invoiceConsecutive',
-                'register_invoice.invoiceDate',
-                'register_invoice.periodPaid',
-                'register_invoice.criterion',
-                'register_invoice.created_by',
-                'register_invoice.created_at',
-                'register_invoice.subTotal',
-                'register_invoice.vat',
+                'register_invoice.id', 
+                'register_invoice.budgetID', 
+                'register_invoice.invoiceNumber', 
+                'register_invoice.invoiceConsecutive', 
+                'register_invoice.invoiceDate', 
+                'register_invoice.periodPaid', 
+                'register_invoice.criterion', 
+                'register_invoice.created_by', 
+                'register_invoice.created_at', 
+                'register_invoice.subTotal', 
+                'register_invoice.vat', 
                 'register_invoice.total',
                 'register_invoice.licensedConcept',
                 'budget.commercialName',
@@ -936,81 +917,81 @@ class BudgetController extends Controller
                 'budget.category',
                 'budget.subcategory'
             )
-                ->leftJoin('budget', 'register_invoice.budgetID', '=', 'budget.id') // Fixed table name
-                ->when($start, fn($q) => $q->whereDate('register_invoice.invoiceDate', '>=', $start))
-                ->when($end, fn($q) => $q->whereDate('register_invoice.invoiceDate', '<=', $end))
-                ->when($status, function ($q) use ($status) {
-                    if ($status === 'P') {
-                        $q->whereHas('cashReceipts', function ($query) {
+            ->leftJoin('budget', 'register_invoice.budgetID', '=', 'budget.id') // Fixed table name
+            ->when($start, fn($q) => $q->whereDate('register_invoice.invoiceDate', '>=', $start))
+            ->when($end, fn($q) => $q->whereDate('register_invoice.invoiceDate', '<=', $end))
+            ->when($status, function($q) use ($status) {
+                if ($status === 'P') {
+                    $q->whereHas('cashReceipts', function($query) {
+                        $query->whereNotNull('receipt_no');
+                    });
+                } elseif ($status === 'C') {
+                    $q->whereHas('creditNotes', function($query) {
+                        $query->whereNotNull('cn_number');
+                    });
+                } elseif ($status === 'B') {
+                    $q->whereHas('cashReceipts', function($query) {
+                        $query->whereNotNull('receipt_no');
+                    })->whereRaw('(SELECT COALESCE(SUM(amount), 0) FROM cash_receipts WHERE invoice_id = register_invoice.id) < register_invoice.total');
+                } elseif ($status === 'D') {
+                    $q->whereDate('register_invoice.invoiceDate', '<', now()->subDays(30))
+                        ->whereDoesntHave('cashReceipts', function($query) {
                             $query->whereNotNull('receipt_no');
                         });
-                    } elseif ($status === 'C') {
-                        $q->whereHas('creditNotes', function ($query) {
-                            $query->whereNotNull('cn_number');
-                        });
-                    } elseif ($status === 'B') {
-                        $q->whereHas('cashReceipts', function ($query) {
-                            $query->whereNotNull('receipt_no');
-                        })->whereRaw('(SELECT COALESCE(SUM(amount), 0) FROM cash_receipts WHERE invoice_id = register_invoice.id) < register_invoice.total');
-                    } elseif ($status === 'D') {
-                        $q->whereDate('register_invoice.invoiceDate', '<', now()->subDays(30))
-                            ->whereDoesntHave('cashReceipts', function ($query) {
-                                $query->whereNotNull('receipt_no');
-                            });
-                    } elseif ($status === 'On') {
-                        $q->whereDate('register_invoice.invoiceDate', '>=', now()->subDays(30))
-                            ->whereDoesntHave('cashReceipts', function ($query) {
-                                $query->whereNotNull('receipt_no');
-                            })
-                            ->whereDoesntHave('creditNotes', function ($query) {
-                                $query->whereNotNull('cn_number');
-                            });
-                    }
-                })
-                ->when($commercial_name, function ($q) use ($commercial_name) {
-                    $q->where('budget.commercialName', 'like', '%' . $commercial_name . '%'); // Fixed table name
-                })
-                ->when($client_category, function ($q) use ($client_category) {
-                    $q->where('budget.category', $client_category); // Fixed table name
-                })
-                ->when($concept, function ($q) use ($concept) {
-                    $q->where('register_invoice.licensedConcept', 'like', '%' . $concept . '%');
-                })
-                ->when($criterion, function ($q) use ($criterion) {
-                    $q->where('register_invoice.criterion', $criterion);
-                });
+                } elseif ($status === 'On') {
+                    $q->whereDate('register_invoice.invoiceDate', '>=', now()->subDays(30))
+                    ->whereDoesntHave('cashReceipts', function($query) {
+                        $query->whereNotNull('receipt_no');
+                    })
+                    ->whereDoesntHave('creditNotes', function($query) {
+                        $query->whereNotNull('cn_number');
+                    });
+                }
+            })
+            ->when($commercial_name, function($q) use ($commercial_name) {
+                $q->where('budget.commercialName', 'like', '%'.$commercial_name.'%'); // Fixed table name
+            })
+            ->when($client_category, function($q) use ($client_category) {
+                $q->where('budget.category', $client_category); // Fixed table name
+            })
+            ->when($concept, function($q) use ($concept) {
+                $q->where('register_invoice.licensedConcept', 'like', '%'.$concept.'%');
+            })
+            ->when($criterion, function($q) use ($criterion) {
+                $q->where('register_invoice.criterion', $criterion);
+            });
 
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('invoiceNumber', fn($row) => $row->invoiceNumber ?: 'N/A')
                 ->addColumn('invoiceDate', function ($row) {
-                    if (!empty($row->invoiceDate)) {
+                    if(!empty($row->invoiceDate)){
                         return date('d-m-Y', strtotime($row->invoiceDate));
                     }
                     return 'N/A';
                 })
                 ->addColumn('invoiceConsecutive', fn($row) => $row->invoiceConsecutive ?: 'N/A')
                 ->addColumn('created_at', function ($row) {
-                    if (!empty($row->created_at)) {
+                    if(!empty($row->created_at)){
                         return date('d-m-Y', strtotime($row->created_at));
                     }
                 })
                 ->addColumn('commercialName', function ($row) {
                     return $row->commercialName ?? 'N/A';
                 })
-                ->addColumn('criterion', function ($row) {
-                    $criterion = \App\Models\BudgetCriterion::where('id', $row->criterion)->first();
+               ->addColumn('criterion', function ($row) {
+    $criterion = \App\Models\BudgetCriterion::where('id', $row->criterion)->first();
 
-                    if ($criterion && isset($criterion->criterion_name)) {
-                        return $criterion->criterion_name;
-                    }
+    if ($criterion && isset($criterion->criterion_name)) {
+        return $criterion->criterion_name;
+    }
 
-                    return 'N/A';
-                })
+    return 'N/A';
+})
                 ->addColumn('subTotal', fn($row) => $this->formatCurrency($row->subTotal))
                 // ->addColumn('vat', fn($row) => $row->vat.'%')
                 ->addColumn('vat', function ($row) {
-                    if (!empty($row->subTotal) && !empty($row->total)) {
+                    if(!empty($row->subTotal) && !empty($row->total)){
                         return $this->formatCurrency(round($row->total - $row->subTotal));
                     } else {
                         return 'N/A';
@@ -1043,42 +1024,42 @@ class BudgetController extends Controller
                     return $row->licensedConcept ?? 'N/A';
                 })
                 ->addColumn('status', function ($row) {
-                    $cashReceipts = CashReceipt::where('invoice_id', $row->id)->get();
-                    $creditNotes = CreditNote::where('invoice_id', $row->id)->get();
-
-                    $totalPaid = $cashReceipts->sum('amount');
-                    $hasCreditNote = $creditNotes->count() > 0;
-                    $hasCashReceipt = $cashReceipts->count() > 0;
-                    $isOverdue = $row->invoiceDate && now()->diffInDays($row->invoiceDate) > 30;
-
-                    if ($hasCreditNote) {
-                        return '<span class="badge bg-secondary">Canceled</span>';
-                    } elseif ($totalPaid >= $row->total) {
-                        return '<span class="badge bg-primary">Paid</span>';
-                    } elseif ($hasCashReceipt && $totalPaid > 0) {
-                        return '<span class="badge bg-info">Balance</span>';
-                    } elseif ($isOverdue && !$hasCashReceipt) {
-                        return '<span class="badge bg-warning">Delay</span>';
-                    } else {
-                        // NEW: If RC exists, show "Paid" instead of "On Time"
-                        if ($hasCashReceipt) {
+                        $cashReceipts = CashReceipt::where('invoice_id', $row->id)->get();
+                        $creditNotes = CreditNote::where('invoice_id', $row->id)->get();
+                        
+                        $totalPaid = $cashReceipts->sum('amount');
+                        $hasCreditNote = $creditNotes->count() > 0;
+                        $hasCashReceipt = $cashReceipts->count() > 0;
+                        $isOverdue = $row->invoiceDate && now()->diffInDays($row->invoiceDate) > 30;
+                        
+                        if ($hasCreditNote) {
+                            return '<span class="badge bg-secondary">Canceled</span>';
+                        } elseif ($totalPaid >= $row->total) {
                             return '<span class="badge bg-primary">Paid</span>';
+                        } elseif ($hasCashReceipt && $totalPaid > 0) {
+                            return '<span class="badge bg-info">Balance</span>';
+                        } elseif ($isOverdue && !$hasCashReceipt) {
+                            return '<span class="badge bg-warning">Delay</span>';
+                        } else {
+                            // NEW: If RC exists, show "Paid" instead of "On Time"
+                            if ($hasCashReceipt) {
+                                return '<span class="badge bg-primary">Paid</span>';
+                            }
+                            return '<span class="badge bg-success">On Time</span>';
                         }
-                        return '<span class="badge bg-success">On Time</span>';
-                    }
-                })
+})
                 ->addColumn('rc_nc', function ($row) {
                     $cashReceipts = CashReceipt::where('invoice_id', $row->id)->get();
                     $creditNotes = CreditNote::where('invoice_id', $row->id)->get();
-
-                    $rcNumbers = $cashReceipts->pluck('receipt_no')->filter()->map(function ($rc) {
+                    
+                    $rcNumbers = $cashReceipts->pluck('receipt_no')->filter()->map(function($rc) {
                         return 'RC ' . $rc;
                     })->implode(', ');
-
-                    $ncNumbers = $creditNotes->pluck('cn_number')->filter()->map(function ($nc) {
+                    
+                    $ncNumbers = $creditNotes->pluck('cn_number')->filter()->map(function($nc) {
                         return 'NC ' . $nc;
                     })->implode(', ');
-
+                    
                     if ($rcNumbers && $ncNumbers) {
                         return $rcNumbers . ', ' . $ncNumbers;
                     } elseif ($rcNumbers) {
@@ -1115,8 +1096,7 @@ class BudgetController extends Controller
         return response()->json(['error' => 'Unauthorized'], 403);
     }
 
-    public function viewGetInvoice(Request $request, $id)
-    {
+    public function viewGetInvoice(Request $request, $id) {
         $pageTitle = 'View Invoice';
 
         $invoice = RegisterInvoice::findOrFail($id);
@@ -1180,10 +1160,10 @@ class BudgetController extends Controller
         $invoiceDate = $invoice->invoiceDate ? Carbon::parse($invoice->invoiceDate)->format('d-m-Y') : 'N/A';
         $createdAt   = $invoice->created_at ? $invoice->created_at->format('d-m-Y') : 'N/A';
         $beginYm     = ($budget->begin_year && $budget->begin_month)
-            ? sprintf('%s %s', date('F', mktime(0, 0, 0, (int)$budget->begin_month, 1)), $budget->begin_year)
+            ? sprintf('%s %s', date('F', mktime(0,0,0, (int)$budget->begin_month, 1)), $budget->begin_year)
             : 'N/A';
         $finishYm    = ($budget->finish_year && $budget->finish_month)
-            ? sprintf('%s %s', date('F', mktime(0, 0, 0, (int)$budget->finish_month, 1)), $budget->finish_year)
+            ? sprintf('%s %s', date('F', mktime(0,0,0, (int)$budget->finish_month, 1)), $budget->finish_year)
             : 'N/A';
 
         // Currency formatter ($1,000.00)
@@ -1195,7 +1175,7 @@ class BudgetController extends Controller
         // Frequency label normalizer
         $freqRaw = $budget->billing_frequency ?? null;
         $freqKey = is_string($freqRaw) ? strtolower(trim($freqRaw)) : (string)$freqRaw;
-        $freqMap = ['1' => 'Monthly', '2' => 'Quarterly', '3' => 'Annual', '4' => 'One-Time Payment', 'monthly' => 'Monthly', 'quarterly' => 'Quarterly', 'annual' => 'Annual', 'One-Time Payment' => 'One-Time Payment'];
+        $freqMap = ['1'=>'Monthly','2'=>'Quarterly','3'=>'Annual','4'=>'One-Time Payment','monthly'=>'Monthly','quarterly'=>'Quarterly','annual'=>'Annual','One-Time Payment'=>'One-Time Payment'];
         $frequencyText = $freqMap[$freqKey] ?? ($freqRaw ?: 'N/A');
 
         // Build one clean array for the blade
@@ -1227,7 +1207,7 @@ class BudgetController extends Controller
 
             // Amounts (from invoice row to reflect the exact booked values)
             'subTotal'   => $fmt($invoice->subTotal),
-            'vat_rate'   => is_numeric($invoice->vat) ? $invoice->vat . '%' : 'N/A',
+            'vat_rate'   => is_numeric($invoice->vat) ? $invoice->vat.'%' : 'N/A',
             'vat_amount' => $fmt($vatAmount),
             'total'      => $fmt($invoice->total),
 
@@ -1242,8 +1222,7 @@ class BudgetController extends Controller
         return view('budget.invoice-view', compact('pageTitle', 'invoice', 'budget', 'display'));
     }
 
-    public function invoiceConceptTotals(Request $request)
-    {
+    public function invoiceConceptTotals(Request $request) {
 
         $start = $request->get('start_date');
         $end = $request->get('end_date');
@@ -1273,7 +1252,7 @@ class BudgetController extends Controller
 
         if ($clientCategory) {
             $query->join('budget', 'register_invoice.budgetID', '=', 'budget.id')
-                ->where('budget.category', $clientCategory);
+                  ->where('budget.category', $clientCategory);
         }
 
         if ($concept) {
@@ -1286,45 +1265,45 @@ class BudgetController extends Controller
 
         if ($status) {
             if ($status === 'P') {
-                $query->whereExists(function ($q) {
+                $query->whereExists(function($q) {
                     $q->selectRaw('1')
-                        ->from('cash_receipts')
-                        ->whereColumn('cash_receipts.invoice_id', 'register_invoice.id')
-                        ->havingRaw('COALESCE(SUM(cash_receipts.amount), 0) >= register_invoice.total');
+                      ->from('cash_receipts')
+                      ->whereColumn('cash_receipts.invoice_id', 'register_invoice.id')
+                      ->havingRaw('COALESCE(SUM(cash_receipts.amount), 0) >= register_invoice.total');
                 });
             } elseif ($status === 'C') {
-                $query->whereExists(function ($q) {
+                $query->whereExists(function($q) {
                     $q->selectRaw('1')
-                        ->from('credit_notes')
-                        ->whereColumn('credit_notes.invoice_id', 'register_invoice.id');
+                      ->from('credit_notes')
+                      ->whereColumn('credit_notes.invoice_id', 'register_invoice.id');
                 });
             } elseif ($status === 'B') {
-                $query->whereExists(function ($q) {
+                $query->whereExists(function($q) {
                     $q->selectRaw('1')
-                        ->from('cash_receipts')
-                        ->whereColumn('cash_receipts.invoice_id', 'register_invoice.id')
-                        ->havingRaw('COALESCE(SUM(cash_receipts.amount), 0) < register_invoice.total')
-                        ->havingRaw('COALESCE(SUM(cash_receipts.amount), 0) > 0');
+                      ->from('cash_receipts')
+                      ->whereColumn('cash_receipts.invoice_id', 'register_invoice.id')
+                      ->havingRaw('COALESCE(SUM(cash_receipts.amount), 0) < register_invoice.total')
+                      ->havingRaw('COALESCE(SUM(cash_receipts.amount), 0) > 0');
                 });
             } elseif ($status === 'D') {
                 $query->whereDate('invoiceDate', '<', now()->subDays(30))
-                    ->whereNotExists(function ($q) {
-                        $q->selectRaw('1')
+                      ->whereNotExists(function($q) {
+                          $q->selectRaw('1')
                             ->from('cash_receipts')
                             ->whereColumn('cash_receipts.invoice_id', 'register_invoice.id');
-                    });
+                      });
             } elseif ($status === 'On') {
                 $query->whereDate('invoiceDate', '>=', now()->subDays(30))
-                    ->whereNotExists(function ($q) {
-                        $q->selectRaw('1')
-                            ->from('cash_receipts')
-                            ->whereColumn('cash_receipts.invoice_id', 'register_invoice.id');
-                    })
-                    ->whereNotExists(function ($q) {
-                        $q->selectRaw('1')
-                            ->from('credit_notes')
-                            ->whereColumn('credit_notes.invoice_id', 'register_invoice.id');
-                    });
+                ->whereNotExists(function($q) {
+                    $q->selectRaw('1')
+                    ->from('cash_receipts')
+                    ->whereColumn('cash_receipts.invoice_id', 'register_invoice.id');
+                })
+                ->whereNotExists(function($q) {
+                    $q->selectRaw('1')
+                    ->from('credit_notes')
+                    ->whereColumn('credit_notes.invoice_id', 'register_invoice.id');
+                });
             }
         }
 
@@ -1350,8 +1329,7 @@ class BudgetController extends Controller
         ]);
     }
 
-    public function invoiceDownload(Request $request)
-    {
+    public function invoiceDownload(Request $request) {
         $start = $request->get('start_date');
         $end   = $request->get('end_date');
         $status = $request->get('status');
@@ -1361,17 +1339,17 @@ class BudgetController extends Controller
         $criterion = $request->get('criterion');
 
         $data = RegisterInvoice::select(
-            'register_invoice.id',
-            'register_invoice.budgetID',
-            'register_invoice.invoiceNumber',
-            'register_invoice.invoiceConsecutive',
-            'register_invoice.invoiceDate',
-            'register_invoice.periodPaid',
-            'register_invoice.criterion',
-            'register_invoice.created_by',
-            'register_invoice.created_at',
-            'register_invoice.subTotal',
-            'register_invoice.vat',
+            'register_invoice.id', 
+            'register_invoice.budgetID', 
+            'register_invoice.invoiceNumber', 
+            'register_invoice.invoiceConsecutive', 
+            'register_invoice.invoiceDate', 
+            'register_invoice.periodPaid', 
+            'register_invoice.criterion', 
+            'register_invoice.created_by', 
+            'register_invoice.created_at', 
+            'register_invoice.subTotal', 
+            'register_invoice.vat', 
             'register_invoice.total',
             'register_invoice.licensedConcept',
             'budget.commercialName',
@@ -1379,80 +1357,70 @@ class BudgetController extends Controller
             'budget.category',
             'budget.subcategory'
         )
-            ->leftJoin('budget', 'register_invoice.budgetID', '=', 'budget.id')
-            ->when($start, fn($q) => $q->whereDate('register_invoice.invoiceDate', '>=', $start))
-            ->when($end, fn($q) => $q->whereDate('register_invoice.invoiceDate', '<=', $end))
-            ->when($status, function ($q) use ($status) {
-                if ($status === 'P') {
-                    $q->whereHas('cashReceipts', function ($query) {
-                        $query->whereNotNull('receipt_no');
-                    });
-                } elseif ($status === 'C') {
-                    $q->whereHas('creditNotes', function ($query) {
-                        $query->whereNotNull('cn_number');
-                    });
-                } elseif ($status === 'B') {
-                    $q->whereHas('cashReceipts', function ($query) {
-                        $query->whereNotNull('receipt_no');
-                    })->whereRaw('(SELECT COALESCE(SUM(amount), 0) FROM cash_receipts WHERE invoice_id = register_invoice.id) < register_invoice.total');
-                } elseif ($status === 'D') {
-                    $q->whereDate('register_invoice.invoiceDate', '<', now()->subDays(30))
-                        ->whereDoesntHave('cashReceipts', function ($query) {
-                            $query->whereNotNull('receipt_no');
-                        });
-                } elseif ($status === 'On') {
-                    $q->whereDate('register_invoice.invoiceDate', '>=', now()->subDays(30))
-                        ->whereDoesntHave('cashReceipts', function ($query) {
-                            $query->whereNotNull('receipt_no');
-                        })
-                        ->whereDoesntHave('creditNotes', function ($query) {
-                            $query->whereNotNull('cn_number');
-                        });
-                }
-            })
-            ->when($commercial_name, function ($q) use ($commercial_name) {
-                $q->where('budget.commercialName', 'like', '%' . $commercial_name . '%');
-            })
-            ->when($client_category, function ($q) use ($client_category) {
-                $q->where('budget.category', $client_category);
-            })
-            ->when($concept, function ($q) use ($concept) {
-                $q->where('register_invoice.licensedConcept', 'like', '%' . $concept . '%');
-            })
-            ->when($criterion, function ($q) use ($criterion) {
-                $q->where('register_invoice.criterion', $criterion);
-            })
-            ->orderBy('register_invoice.invoiceConsecutive', 'asc')
-            ->get();
+        ->leftJoin('budget', 'register_invoice.budgetID', '=', 'budget.id')
+        ->when($start, fn($q) => $q->whereDate('register_invoice.invoiceDate', '>=', $start))
+        ->when($end, fn($q) => $q->whereDate('register_invoice.invoiceDate', '<=', $end))
+        ->when($status, function($q) use ($status) {
+            if ($status === 'P') {
+                $q->whereHas('cashReceipts', function($query) {
+                    $query->whereNotNull('receipt_no');
+                });
+            } elseif ($status === 'C') {
+                $q->whereHas('creditNotes', function($query) {
+                    $query->whereNotNull('cn_number');
+                });
+            } elseif ($status === 'B') {
+                $q->whereHas('cashReceipts', function($query) {
+                    $query->whereNotNull('receipt_no');
+                })->whereRaw('(SELECT COALESCE(SUM(amount), 0) FROM cash_receipts WHERE invoice_id = register_invoice.id) < register_invoice.total');
+            } elseif ($status === 'D') {
+                $q->whereDate('register_invoice.invoiceDate', '<', now()->subDays(30))
+                  ->whereDoesntHave('cashReceipts', function($query) {
+                      $query->whereNotNull('receipt_no');
+                  });
+            } elseif ($status === 'On') {
+                $q->whereDate('register_invoice.invoiceDate', '>=', now()->subDays(30))
+                ->whereDoesntHave('cashReceipts', function($query) {
+                    $query->whereNotNull('receipt_no');
+                })
+                ->whereDoesntHave('creditNotes', function($query) {
+                    $query->whereNotNull('cn_number');
+                });
+            }
+        })
+        ->when($commercial_name, function($q) use ($commercial_name) {
+            $q->where('budget.commercialName', 'like', '%'.$commercial_name.'%');
+        })
+        ->when($client_category, function($q) use ($client_category) {
+            $q->where('budget.category', $client_category);
+        })
+        ->when($concept, function($q) use ($concept) {
+            $q->where('register_invoice.licensedConcept', 'like', '%'.$concept.'%');
+        })
+        ->when($criterion, function($q) use ($criterion) {
+            $q->where('register_invoice.criterion', $criterion);
+        })
+        ->orderBy('register_invoice.invoiceConsecutive', 'asc')
+        ->get();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Register Invoice');
-
+        
         // Header styling
         $headerStyle = [
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '4472C4']],
             'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
         ];
-
+        
         // Headers
         $headers = [
-            'Client Category',
-            'Sub Category',
-            'Commercial Name',
-            'Invoice Number',
-            'Invoice Date',
-            'Concept',
-            'Period',
-            'Criterion',
-            'Subtotal',
-            'VAT %',
-            'Total',
-            'Status',
-            'RC/NC'
+            'Client Category', 'Sub Category', 'Commercial Name', 'Invoice Number', 
+            'Invoice Date', 'Concept', 'Period', 'Criterion', 'Subtotal', 
+            'VAT %', 'Total', 'Status', 'RC/NC'
         ];
-
+        
         $col = 'A';
         foreach ($headers as $header) {
             $sheet->setCellValue($col . '1', $header);
@@ -1460,18 +1428,18 @@ class BudgetController extends Controller
             $sheet->getColumnDimension($col)->setAutoSize(true);
             $col++;
         }
-
+        
         // Data rows
         $row = 2;
         $totalInvoiced = 0;
-
+        
         foreach ($data as $invoice) {
             $budget = Budget::find($invoice->budgetID);
             $client = Clients::find($budget?->commercialID);
-
+            
             $categoryName = ClientCategory::where('id', $client?->categoryID)->value('category_name') ?? 'N/A';
             $subcategoryName = ClientSubCategory::where('id', $client?->subcategoryID)->value('subcategory_name') ?? 'N/A';
-
+            
             $criteriaMap = [
                 1 => 'Min. Guaranteed, 8% Income',
                 2 => 'Min. Guaranteed + 8%',
@@ -1480,16 +1448,16 @@ class BudgetController extends Controller
                 5 => 'Special Arrangement'
             ];
             $criterion = $criteriaMap[$invoice->criterion] ?? 'N/A';
-
+            
             // Calculate status
             $cashReceipts = CashReceipt::where('invoice_id', $invoice->id)->get();
             $creditNotes = CreditNote::where('invoice_id', $invoice->id)->get();
-
+            
             $totalPaid = $cashReceipts->sum('amount');
             $hasCreditNote = $creditNotes->count() > 0;
             $hasCashReceipt = $cashReceipts->count() > 0;
             $isOverdue = $invoice->invoiceDate && now()->diffInDays($invoice->invoiceDate) > 30;
-
+            
             if ($hasCreditNote) {
                 $status = 'Canceled';
             } elseif ($totalPaid >= $invoice->total) {
@@ -1501,16 +1469,16 @@ class BudgetController extends Controller
             } else {
                 $status = 'On Time';
             }
-
+            
             // RC/NC
-            $rcNumbers = $cashReceipts->pluck('receipt_no')->filter()->map(function ($rc) {
+            $rcNumbers = $cashReceipts->pluck('receipt_no')->filter()->map(function($rc) {
                 return 'RC ' . $rc;
             })->implode(', ');
-
-            $ncNumbers = $creditNotes->pluck('cn_number')->filter()->map(function ($nc) {
+            
+            $ncNumbers = $creditNotes->pluck('cn_number')->filter()->map(function($nc) {
                 return 'NC ' . $nc;
             })->implode(', ');
-
+            
             $rcNc = '';
             if ($rcNumbers && $ncNumbers) {
                 $rcNc = $rcNumbers . ', ' . $ncNumbers;
@@ -1521,7 +1489,7 @@ class BudgetController extends Controller
             } else {
                 $rcNc = '-';
             }
-
+            
             $sheet->setCellValue('A' . $row, $categoryName);
             $sheet->setCellValue('B' . $row, $subcategoryName);
             $sheet->setCellValue('C' . $row, $invoice->commercialName ?? 'N/A');
@@ -1535,16 +1503,16 @@ class BudgetController extends Controller
             $sheet->setCellValue('K' . $row, (float)$invoice->total);
             $sheet->setCellValue('L' . $row, $status);
             $sheet->setCellValue('M' . $row, $rcNc);
-
+            
             // Format numbers
             $sheet->getStyle('I' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
             $sheet->getStyle('J' . $row)->getNumberFormat()->setFormatCode('0.00"%"');
             $sheet->getStyle('K' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
-
+            
             $totalInvoiced += (float)$invoice->total;
             $row++;
         }
-
+        
         // Add total row
         if ($row > 2) {
             $sheet->setCellValue('H' . $row, 'TOTAL:');
@@ -1555,121 +1523,117 @@ class BudgetController extends Controller
             ]);
             $sheet->getStyle('K' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
         }
-
+        
         $filename = 'Register_Invoice_' . ($start ? Carbon::parse($start)->format('Ymd') : 'all') . '_to_' . ($end ? Carbon::parse($end)->format('Ymd') : 'all') . '.xlsx';
-
+        
         $writer = new Xlsx($spreadsheet);
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
-
+        
         $writer->save('php://output');
         exit;
     }
 
     // Helper currency like $1,000.00
-    private function money($n)
-    {
-        return '$' . number_format((float)$n, 2, '.', ',');
+    private function money($n) { 
+        return '$' . number_format((float)$n, 2, '.', ','); 
     }
 
-    public function billingList(Request $request)
-    {
+    public function billingList(Request $request) {
         $start = $request->get('start_date'); // Y-m-d
         $end   = $request->get('end_date');   // Y-m-d
 
         $q = RegisterInvoice::query()
-            ->when($start, fn($x) => $x->whereDate('invoiceDate', '>=', $start))
-            ->when($end,   fn($x) => $x->whereDate('invoiceDate', '<=', $end))
-            ->orderBy('invoiceConsecutive', 'asc');
+            ->when($start, fn($x) => $x->whereDate('invoiceDate','>=',$start))
+            ->when($end,   fn($x) => $x->whereDate('invoiceDate','<=',$end))
+            ->orderBy('invoiceConsecutive','asc');
 
         return DataTables::of($q)
             ->addIndexColumn()
-            ->addColumn('user_type', function ($row) {
+            ->addColumn('user_type', function($row){
                 $name = UseTypes::where('id', $row->user_type)->value('use_types_name');
                 return $name ?: ($row->user_type ?? 'N/A');
             })
             ->addColumn('company', fn($r) => $r->company ?: 'N/A')
             ->addColumn('commercialName', fn($r) => $r->commercialName ?: 'N/A')
-            ->addColumn('concept', function ($r) {
+            ->addColumn('concept', function($r){
                 $b = Budget::find($r->budgetID);
                 return $b?->concept ?? 'N/A';
             })
             ->addColumn('invoice_no', fn($r) => $r->invoiceNumber ?: 'N/A')
             ->addColumn('invoice_date', fn($r) => $r->invoiceDate ? Carbon::parse($r->invoiceDate)->format('d-m-Y') : 'N/A')
-            ->addColumn('period', function ($r) {
-                $map = [1 => 'Month and Year', 2 => 'Year Only', 3 => 'Multiple Years'];
+            ->addColumn('period', function($r){
+                $map=[1=>'Month and Year',2=>'Year Only',3=>'Multiple Years'];
                 $label = $map[$r->paidPeriod] ?? 'N/A';
-                return $label . ($r->periodPaid ? ' (' . $r->periodPaid . ')' : '');
+                return $label . ($r->periodPaid ? ' ('.$r->periodPaid.')' : '');
             })
-            ->addColumn('criterion', function ($r) {
-                $criteria = [1 => 'Min. Guaranteed, 8% Income', 2 => 'Min. Guaranteed + 8%', 3 => 'Monthly Fee', 4 => 'Annual Fee', 5 => 'Special Arrangement'];
+            ->addColumn('criterion', function($r){
+                $criteria=[1=>'Min. Guaranteed, 8% Income',2=>'Min. Guaranteed + 8%',3=>'Monthly Fee',4=>'Annual Fee',5=>'Special Arrangement'];
                 return $criteria[$r->criterion] ?? 'N/A';
             })
-            ->addColumn('subtotal', fn($r) => $this->money($r->subTotal))
-            ->addColumn('vat', fn($r) => is_numeric($r->vat) ? $r->vat . '%' : 'N/A')
-            ->addColumn('total', fn($r) => $this->money($r->total))
-            ->addColumn('balance', function ($r) {
-                $paid = (float) CashReceipt::where('invoice_id', $r->id)->sum('amount');
-                $cn   = CreditNote::where('invoice_id', $r->id)->first();
-                $cnTot = $cn ? (float)$cn->total : 0.0;
+            ->addColumn('subtotal', fn($r)=>$this->money($r->subTotal))
+            ->addColumn('vat', fn($r)=> is_numeric($r->vat) ? $r->vat.'%' : 'N/A')
+            ->addColumn('total', fn($r)=>$this->money($r->total))
+            ->addColumn('balance', function($r){
+                $paid = (float) CashReceipt::where('invoice_id',$r->id)->sum('amount');
+                $cn   = CreditNote::where('invoice_id',$r->id)->first();
+                $cnTot= $cn ? (float)$cn->total : 0.0;
                 $bal  = (float)$r->total - $paid - $cnTot;
-                return $this->money(max($bal, 0));
+                return $this->money(max($bal,0));
             })
-            ->addColumn('supporting_doc', function ($r) {
-                $receipts = CashReceipt::where('invoice_id', $r->id)->orderBy('receipt_date')->get();
-                $cn = CreditNote::where('invoice_id', $r->id)->first();
+            ->addColumn('supporting_doc', function($r){
+                $receipts = CashReceipt::where('invoice_id',$r->id)->orderBy('receipt_date')->get();
+                $cn = CreditNote::where('invoice_id',$r->id)->first();
 
-                $parts = [];
-                foreach ($receipts as $rc) {
-                    $parts[] = 'CR ' . $rc->receipt_no . ' (' . $this->money($rc->amount) . ')';
+                $parts=[];
+                foreach($receipts as $rc){
+                    $parts[] = 'CR '.$rc->receipt_no.' ('.$this->money($rc->amount).')';
                 }
-                if ($cn) {
-                    $parts[] = 'CN ' . $cn->cn_number . ' (' . $this->money($cn->total) . ')';
+                if($cn){
+                    $parts[] = 'CN '.$cn->cn_number.' ('.$this->money($cn->total).')';
                 }
                 return $parts ? implode(' Ã‚Â· ', $parts) : '-';
             })
-            ->addColumn('action', function ($r) {
-                $cn = CreditNote::where('invoice_id', $r->id)->first();
+            ->addColumn('action', function($r){
+                $cn = CreditNote::where('invoice_id',$r->id)->first();
                 $cnBtn = $cn
                     ? '<button type="button" class="btn btn-soft-secondary btn-sm" disabled title="Credit Note already registered">Credit Note</button>'
-                    : '<button type="button" class="btn btn-soft-warning btn-sm" onclick="openCreditNoteModal(' . $r->id . ')" title="Register Credit Note">Register Credit Note<i class="ri-file-reduce-line"></i></button>';
+                    : '<button type="button" class="btn btn-soft-warning btn-sm" onclick="openCreditNoteModal('.$r->id.')" title="Register Credit Note">Register Credit Note<i class="ri-file-reduce-line"></i></button>';
 
                 $view = route('get-invoice.view', $r->id);
                 return '<div class="btn-group" role="group">
-                            ' . $cnBtn . '
-                            <a href="' . $view . '" class="btn btn-soft-primary btn-sm" title="View Invoice" target="_blank">View</a>
+                            '.$cnBtn.'
+                            <a href="'.$view.'" class="btn btn-soft-primary btn-sm" title="View Invoice" target="_blank">View</a>
                         </div>';
             })
             ->rawColumns(['action'])
-            ->with(['totals' => $this->billingTotals($start, $end)])
+            ->with(['totals'=>$this->billingTotals($start,$end)])
             ->make(true);
     }
 
-    private function billingTotals(?string $start, ?string $end): array
-    {
+    private function billingTotals(?string $start, ?string $end): array {
         $inv = RegisterInvoice::query()
-            ->when($start, fn($x) => $x->whereDate('invoiceDate', '>=', $start))
-            ->when($end,   fn($x) => $x->whereDate('invoiceDate', '<=', $end))
+            ->when($start, fn($x)=>$x->whereDate('invoiceDate','>=',$start))
+            ->when($end,   fn($x)=>$x->whereDate('invoiceDate','<=',$end))
             ->get();
 
         $totalBilling = (float)$inv->sum('total');
 
         $ids = $inv->pluck('id');
-        $cnSum = (float) CreditNote::whereIn('invoice_id', $ids)->sum('total');
-        $rcSum = (float) CashReceipt::whereIn('invoice_id', $ids)->sum('amount');
+        $cnSum = (float) CreditNote::whereIn('invoice_id',$ids)->sum('total');
+        $rcSum = (float) CashReceipt::whereIn('invoice_id',$ids)->sum('amount');
 
         $portfolio = $totalBilling - $rcSum - $cnSum;
 
         return [
             'billing'     => $this->money($totalBilling),
             'creditNotes' => $this->money($cnSum),
-            'portfolio'   => $this->money(max($portfolio, 0)),
+            'portfolio'   => $this->money(max($portfolio,0)),
         ];
     }
 
-    public function creditNotesList(Request $request)
-    {
+    public function creditNotesList(Request $request) {
         $start = $request->get('start_date');
         $end   = $request->get('end_date');
 
@@ -1691,42 +1655,41 @@ class BudgetController extends Controller
                 DB::raw('COALESCE(cn.period, "N/A") as period'),
                 DB::raw('COALESCE(cn.criterion, "N/A") as criterion')
             )
-            ->when($start, fn($x) => $x->whereDate('cn.cn_date', '>=', $start))
-            ->when($end,   fn($x) => $x->whereDate('cn.cn_date', '<=', $end))
+            ->when($start, fn($x)=>$x->whereDate('cn.cn_date','>=',$start))
+            ->when($end,   fn($x)=>$x->whereDate('cn.cn_date','<=',$end))
             ->orderBy('cn_number');
 
         return DataTables::of($q)
             ->addIndexColumn()
-            ->addColumn('user_type', function ($r) {
+            ->addColumn('user_type', function($r){
                 $name = UseTypes::where('id', $r->user_type)->value('use_types_name');
                 return $name ?: ($r->user_type ?? 'N/A');
             })
-            ->addColumn('company', fn($r) => $r->company ?? 'N/A')
-            ->addColumn('commercialName', fn($r) => $r->commercialName ?? 'N/A')
-            ->addColumn('concept', fn($r) => $r->concept ?? 'N/A')
-            ->addColumn('cn_no', fn($r) => $r->cn_number)
-            ->addColumn('cn_date', fn($r) => $r->cn_date ? Carbon::parse($r->cn_date)->format('d-m-Y') : 'N/A')
-            ->addColumn('period', fn($r) => $r->period ?? 'N/A')
-            ->addColumn('criterion', fn($r) => $r->criterion ?? 'N/A')
-            ->addColumn('subtotal', fn($r) => $this->money($r->subTotal))
-            ->addColumn('vat', fn($r) => is_numeric($r->vat) ? $r->vat . '%' : 'N/A')
-            ->addColumn('total', fn($r) => $this->money($r->total))
-            ->addColumn('supporting_doc', function ($r) {
+            ->addColumn('company', fn($r)=>$r->company ?? 'N/A')
+            ->addColumn('commercialName', fn($r)=>$r->commercialName ?? 'N/A')
+            ->addColumn('concept', fn($r)=>$r->concept ?? 'N/A')
+            ->addColumn('cn_no', fn($r)=>$r->cn_number)
+            ->addColumn('cn_date', fn($r)=>$r->cn_date ? Carbon::parse($r->cn_date)->format('d-m-Y') : 'N/A')
+            ->addColumn('period', fn($r)=>$r->period ?? 'N/A')
+            ->addColumn('criterion', fn($r)=>$r->criterion ?? 'N/A')
+            ->addColumn('subtotal', fn($r)=>$this->money($r->subTotal))
+            ->addColumn('vat', fn($r)=> is_numeric($r->vat) ? $r->vat.'%' : 'N/A')
+            ->addColumn('total', fn($r)=>$this->money($r->total))
+            ->addColumn('supporting_doc', function($r){
                 if ($r->supporting_doc && $r->supporting_doc !== '-') {
                     $url = Storage::url($r->supporting_doc);
                     $fileName = basename($r->supporting_doc);
-                    return '<a href="' . $url . '" target="_blank" class="btn btn-soft-info btn-sm"><iconify-icon icon="solar:file-download-bold" class="fs-18"></iconify-icon></a>';
+                    return '<a href="'.$url.'" target="_blank" class="btn btn-soft-info btn-sm"><iconify-icon icon="solar:file-download-bold" class="fs-18"></iconify-icon></a>';
                 }
                 return '-';
                 return '-';
             })
-            ->addColumn('action', fn($r) => '<a href="javascript:void(0)" class="btn btn-soft-danger btn-sm" onclick="deleteCN(' . $r->id . ')" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><iconify-icon icon="solar:trash-bin-trash-bold" class="fs-18"></iconify-icon></a>')
+            ->addColumn('action', fn($r)=>'<a href="javascript:void(0)" class="btn btn-soft-danger btn-sm" onclick="deleteCN('.$r->id.')" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><iconify-icon icon="solar:trash-bin-trash-bold" class="fs-18"></iconify-icon></a>')
             ->rawColumns(['action', 'supporting_doc'])
             ->make(true);
     }
 
-    public function storeCreditNote(Request $request)
-    {
+    public function storeCreditNote(Request $request) {
         $request->validate([
             'invoice_id'     => 'required|exists:register_invoice,id',
             'cn_number'      => 'required|unique:credit_notes,cn_number',
@@ -1782,31 +1745,27 @@ class BudgetController extends Controller
                 if ($invoice) {
                     // Get total paid via cash receipts
                     $totalPaidSoFar = CashReceipt::where(
-                        'invoice_id',
-                        $invoice->id
+                        'invoice_id', $invoice->id
                     )->sum('amount');
 
                     // Get total credit notes for this invoice
                     $totalCreditNotes = CreditNote::where(
-                        'invoice_id',
-                        $invoice->id
+                        'invoice_id', $invoice->id
                     )->sum('total');
 
                     // Calculate new balance
                     $newBalance = max(
                         (float)$invoice->total
-                            - $totalPaidSoFar
-                            - $totalCreditNotes,
+                        - $totalPaidSoFar
+                        - $totalCreditNotes,
                         0
                     );
 
                     // Determine status
                     if ($newBalance <= 0) {
                         $invoiceStatus = 'Cancelled';
-                    } elseif (
-                        $totalPaidSoFar > 0
-                        || $totalCreditNotes > 0
-                    ) {
+                    } elseif ($totalPaidSoFar > 0
+                        || $totalCreditNotes > 0) {
                         $invoiceStatus = 'Partial';
                     } else {
                         $invoiceStatus = 'On time';
@@ -1828,6 +1787,7 @@ class BudgetController extends Controller
                 'status' => true,
                 'message' => 'Credit Note saved successfully'
             ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -1838,8 +1798,7 @@ class BudgetController extends Controller
         }
     }
 
-    public function deleteCreditNote($id)
-    {
+    public function deleteCreditNote($id) {
         return DB::transaction(function () use ($id) {
             $cn = CreditNote::findOrFail($id);
 
@@ -1857,8 +1816,7 @@ class BudgetController extends Controller
         });
     }
 
-    public function quickRegisterInvoice(Request $request)
-    {
+    public function quickRegisterInvoice(Request $request) {
         $request->validate([
             'commercialID'   => 'required|exists:clients,id',
             'company'        => 'required|string',
@@ -1872,7 +1830,7 @@ class BudgetController extends Controller
             'criterion'      => 'required|in:1,2,3,4,5',
         ]);
 
-        $invoiceNumber = 'IN-' . strtoupper(uniqid());
+        $invoiceNumber = 'IN-'.strtoupper(uniqid());
         $inv = RegisterInvoice::create([
             'budgetID'           => null,
             'invoiceConsecutive' => $invoiceNumber,
@@ -1882,7 +1840,7 @@ class BudgetController extends Controller
             'paidPeriod'         => $request->paidPeriod,
             'criterion'          => $request->criterion,
             'licensedConcept'    => null,
-            'licensedEnvironment' => null,
+            'licensedEnvironment'=> null,
             'commercialID'       => $request->commercialID,
             'user_type'          => $request->user_type,
             'company'            => $request->company,
@@ -1893,11 +1851,10 @@ class BudgetController extends Controller
             'created_by'         => auth()->id(),
         ]);
 
-        return response()->json(['status' => true, 'message' => 'Invoice registered', 'id' => $inv->id]);
+        return response()->json(['status'=>true,'message'=>'Invoice registered','id'=>$inv->id]);
     }
 
-    public function billingDownload(Request $request)
-    {
+    public function billingDownload(Request $request) {
         $start = $request->get('start_date');
         $end   = $request->get('end_date');
         $invoices = RegisterInvoice::query()->when($start, fn($q) => $q->whereDate('invoiceDate', '>=', $start))->when($end, fn($q) => $q->whereDate('invoiceDate', '<=', $end))->orderBy('invoiceConsecutive', 'asc')->get();
@@ -1907,30 +1864,19 @@ class BudgetController extends Controller
         $spreadsheet = new Spreadsheet();
         $invoiceSheet = $spreadsheet->getActiveSheet();
         $invoiceSheet->setTitle('Invoices');
-
+        
         $headerStyle = [
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '4472C4']],
             'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
         ];
-
+        
         $invoiceHeaders = [
-            'User Type',
-            'Company',
-            'Commercial Name',
-            'Concept',
-            'Invoice No.',
-            'Invoice Date',
-            'Period',
-            'Criterion',
-            'Subtotal',
-            'VAT %',
-            'VAT Amount',
-            'Total',
-            'Balance',
-            'Supporting Doc'
+            'User Type', 'Company', 'Commercial Name', 'Concept', 'Invoice No.', 
+            'Invoice Date', 'Period', 'Criterion', 'Subtotal', 'VAT %', 
+            'VAT Amount', 'Total', 'Balance', 'Supporting Doc'
         ];
-
+        
         $col = 'A';
         foreach ($invoiceHeaders as $header) {
             $invoiceSheet->setCellValue($col . '1', $header);
@@ -1938,17 +1884,17 @@ class BudgetController extends Controller
             $invoiceSheet->getColumnDimension($col)->setAutoSize(true);
             $col++;
         }
-
+        
         $row = 2;
         $totalInvoiced = 0;
         $totalVatAmount = 0;
-
+        
         foreach ($invoices as $invoice) {
             $budget = Budget::find($invoice->budgetID);
             $userTypeName = UseTypes::where('id', $invoice->user_type)->value('use_types_name') ?? $invoice->user_type;
             $paidPeriodMap = [1 => 'Month and Year', 2 => 'Year Only', 3 => 'Multiple Years'];
             $period = ($paidPeriodMap[$invoice->paidPeriod] ?? 'N/A') . ($invoice->periodPaid ? ' (' . $invoice->periodPaid . ')' : '');
-
+            
             $criteriaMap = [
                 1 => 'Min. Guaranteed, 8% Income',
                 2 => 'Min. Guaranteed + 8%',
@@ -1957,12 +1903,12 @@ class BudgetController extends Controller
                 5 => 'Special Arrangement'
             ];
             $criterion = $criteriaMap[$invoice->criterion] ?? 'N/A';
-
+            
             $paid = (float) CashReceipt::where('invoice_id', $invoice->id)->sum('amount');
             $cn = CreditNote::where('invoice_id', $invoice->id)->first();
             $cnTotal = $cn ? (float)$cn->total : 0.0;
             $balance = max((float)$invoice->total - $paid - $cnTotal, 0);
-
+            
             $vatAmount = (float)$invoice->total - (float)$invoice->subTotal;
             $receipts = CashReceipt::where('invoice_id', $invoice->id)->orderBy('receipt_date')->get();
             $supportingDocs = [];
@@ -1996,7 +1942,7 @@ class BudgetController extends Controller
             $totalVatAmount += $vatAmount;
             $row++;
         }
-
+        
         if ($row > 2) {
             $invoiceSheet->setCellValue('H' . $row, 'TOTAL:');
             $invoiceSheet->setCellValue('K' . $row, $totalVatAmount);
@@ -2010,24 +1956,13 @@ class BudgetController extends Controller
         }
         $cnSheet = $spreadsheet->createSheet();
         $cnSheet->setTitle('Credit Notes');
-
+        
         $cnHeaders = [
-            'User Type',
-            'Company',
-            'Commercial Name',
-            'Concept',
-            'CN No.',
-            'CN Date',
-            'Period',
-            'Criterion',
-            'Reason',
-            'Subtotal',
-            'VAT %',
-            'VAT Amount',
-            'Total',
-            'Supporting Doc'
+            'User Type', 'Company', 'Commercial Name', 'Concept', 'CN No.', 
+            'CN Date', 'Period', 'Criterion', 'Reason', 'Subtotal', 
+            'VAT %', 'VAT Amount', 'Total', 'Supporting Doc'
         ];
-
+        
         $col = 'A';
         foreach ($cnHeaders as $header) {
             $cnSheet->setCellValue($col . '1', $header);
@@ -2035,7 +1970,7 @@ class BudgetController extends Controller
             $cnSheet->getColumnDimension($col)->setAutoSize(true);
             $col++;
         }
-
+        
         $row = 2;
         $totalCN = 0;
         $totalCNVat = 0;
@@ -2055,7 +1990,7 @@ class BudgetController extends Controller
             $criterion = $criteriaMap[$invoice?->criterion] ?? 'N/A';
             $vatAmount = (float)$cn->total - (float)$cn->subTotal;
             $supportingDoc = $cn->supporting_doc ? 'Attached' : '-';
-
+            
             $cnSheet->setCellValue('A' . $row, $userTypeName);
             $cnSheet->setCellValue('B' . $row, $invoice?->company ?? 'N/A');
             $cnSheet->setCellValue('C' . $row, $invoice?->commercialName ?? 'N/A');
@@ -2078,7 +2013,7 @@ class BudgetController extends Controller
             $totalCNVat += $vatAmount;
             $row++;
         }
-
+        
         if ($row > 2) {
             $cnSheet->setCellValue('H' . $row, 'TOTAL:');
             $cnSheet->setCellValue('L' . $row, $totalCNVat);
@@ -2090,25 +2025,23 @@ class BudgetController extends Controller
             $cnSheet->getStyle('L' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
             $cnSheet->getStyle('M' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
         }
-
+        
         $spreadsheet->setActiveSheetIndex(0);
         $filename = 'Billing_Report_' . ($start ? Carbon::parse($start)->format('Ymd') : 'all') . '_to_' . ($end ? Carbon::parse($end)->format('Ymd') : 'all') . '.xlsx';
         $writer = new Xlsx($spreadsheet);
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
-
+        
         $writer->save('php://output');
         exit;
     }
 
-    public function billingUpload(Request $r)
-    {
-        return response()->json(['status' => true, 'message' => 'Upload stub. Parse Excel and insert invoices/receipts.']);
+    public function billingUpload(Request $r) {
+        return response()->json(['status'=>true,'message'=>'Upload stub. Parse Excel and insert invoices/receipts.']);
     }
-
-    public function billingReport(Request $request)
-    {
+    
+    public function billingReport(Request $request) {
         $start = $request->get('start_date');
         $end   = $request->get('end_date');
 
@@ -2134,13 +2067,12 @@ class BudgetController extends Controller
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('budget.billing-report-pdf', $data);
         $pdf->setPaper('A4', 'landscape');
-
+        
         $filename = 'Billing_Report_' . ($start ? Carbon::parse($start)->format('Ymd') : 'all') . '_to_' . ($end ? Carbon::parse($end)->format('Ymd') : 'all') . '.pdf';
         return $pdf->download($filename);
     }
 
-    public function calculateTotalsByConcept($month = null, $year = null, $startDate = null, $endDate = null, $conceptFilter = null, $conditionFilter = null)
-    {
+    public function calculateTotalsByConcept($month = null, $year = null, $startDate = null, $endDate = null, $conceptFilter = null, $conditionFilter = null) {
         $concepts = \App\Models\Budget::select('licensedConcept')
             ->distinct()
             ->pluck('licensedConcept')
@@ -2161,7 +2093,7 @@ class BudgetController extends Controller
                 'conditions' => [3] // Awaiting Purchase Order,
             ],
             'new_agreement' => [
-                'title' => 'New Agreement',
+                'title' => 'New Agreement', 
                 'conditions' => [2] // New Agreement
             ],
             'portfolio' => [
@@ -2176,29 +2108,29 @@ class BudgetController extends Controller
         foreach ($sections as $sectionKey => $section) {
             $sectionTotals = [];
             $sectionGrand = ['subTotal' => 0, 'vat' => 0, 'total' => 0];
-
+            
             foreach ($concepts as $conceptName) {
                 $budgets = Budget::where('licensedConcept', $conceptName)
-                    ->whereIn('condition', $section['conditions']);
-
+                                ->whereIn('condition', $section['conditions']);
+                
                 // Apply month/year filters only if provided
-                if ($month) {
-                    $budgets->where('budget_month', $month);
+                if ($month) { 
+                    $budgets->where('budget_month', $month); 
                 }
-                if ($year) {
-                    $budgets->where('budget_year', $year);
+                if ($year) { 
+                    $budgets->where('budget_year', $year); 
                 }
-
+                
                 // Apply concept filter if provided
                 if ($conceptFilter) {
                     $budgets->where('user_type', 'like', '%' . $conceptFilter . '%');
                 }
-
+                
                 // Apply condition filter if provided
                 if ($conditionFilter) {
                     $budgets->where('condition', $conditionFilter);
                 }
-
+                
                 // Apply timeframe filter if provided
                 $this->applyTimeframeFilter($budgets, $startDate, $endDate);
 
@@ -2239,8 +2171,7 @@ class BudgetController extends Controller
         ];
     }
 
-    public function checkDeadlineAlert()
-    {
+    public function checkDeadlineAlert() {
         $endOfMonth = Carbon::now()->endOfMonth();
         $daysUntilEndOfMonth = (int) Carbon::now()->diffInDays($endOfMonth);
 
@@ -2259,8 +2190,7 @@ class BudgetController extends Controller
         return response()->json(['alert' => false]);
     }
 
-    public function getIncomeData(Request $request)
-    {
+    public function getIncomeData(Request $request) {
         $start = $request->get('start_date');
         $end   = $request->get('end_date');
 
@@ -2294,7 +2224,7 @@ class BudgetController extends Controller
             ->where('rc_number', '!=', '')
             ->where('rc_number', '!=', '-')
             ->groupBy('rc_number');
-
+            
         if ($start && $end) {
             $query->whereBetween('income_date', [$start, $end]);
         } elseif ($start) {
@@ -2307,30 +2237,30 @@ class BudgetController extends Controller
         return DataTables::of($query)
             ->addIndexColumn()
             ->addColumn('mode', fn($row) => $row->mode)
-            ->addColumn('bank_code', function ($row) {
+            ->addColumn('bank_code', function($row) {
                 $bank = Bank::find($row->bank_code);
                 return $bank ? $bank->bank_code . ' - ' . $bank->bank_name : '-';
             })
             ->addColumn('company', fn($row) => $row->company ?? '-')
             ->addColumn('commercial_name', fn($row) => $row->commercial_name ?? '-')
             ->addColumn('income_date', function ($row) {
-                return $row->income_date
-                    ? Carbon::parse($row->income_date)->format('d-m-Y')
+                return $row->income_date 
+                    ? Carbon::parse($row->income_date)->format('d-m-Y') 
                     : '-';
             })
             ->addColumn('income_amount', fn($row) => $this->money($row->total_income))
             ->addColumn('other_amounts', fn($row) => $this->money($row->total_other))
             ->addColumn('total_paid', fn($row) => $this->money($row->total_paid))
             ->addColumn('invoice_number', fn($row) => $row->invoices ?? '-')
-            ->addColumn('invoice_ids', function ($row) {
+            ->addColumn('invoice_ids', function($row) {
                 if ($row->invoices) {
                     return explode(',', $row->invoices);
                 }
                 return [];
             })
             ->addColumn('invoice_date', function ($row) {
-                return $row->invoice_date
-                    ? Carbon::parse($row->invoice_date)->format('d-m-Y')
+                return $row->invoice_date 
+                    ? Carbon::parse($row->invoice_date)->format('d-m-Y') 
                     : '-';
             })
             ->addColumn('concept', fn($row) => $row->concept ?? '-')
@@ -2339,16 +2269,16 @@ class BudgetController extends Controller
             ->addColumn('balance', fn($row) => $this->money($row->total_balance))
             ->addColumn('rc_number', fn($row) => $row->rc_number ?? '-')
             ->addColumn('rc_date', function ($row) {
-                return $row->rc_date
-                    ? Carbon::parse($row->rc_date)->format('d-m-Y')
+                return $row->rc_date 
+                    ? Carbon::parse($row->rc_date)->format('d-m-Y') 
                     : '-';
             })
             ->addColumn('action', function ($row) {
                 return '<div class="btn-group" role="group">
-                    <button type="button" class="btn btn-soft-primary btn-sm" onclick="editIncome(' . $row->id . ')" title="Edit">
+                    <button type="button" class="btn btn-soft-primary btn-sm" onclick="editIncome('.$row->id.')" title="Edit">
                         <iconify-icon icon="solar:pen-new-square-linear" class="fs-18"></iconify-icon>
                     </button>
-                    <button type="button" class="btn btn-soft-danger btn-sm" onclick="deleteIncome(' . $row->id . ')" title="Delete">
+                    <button type="button" class="btn btn-soft-danger btn-sm" onclick="deleteIncome('.$row->id.')" title="Delete">
                         <iconify-icon icon="solar:trash-bin-trash-bold" class="fs-18"></iconify-icon>
                     </button>
                 </div>';
@@ -2358,8 +2288,7 @@ class BudgetController extends Controller
             ->make(true);
     }
 
-    public function deleteIncome($id)
-    {
+    public function deleteIncome($id) {
         return DB::transaction(function () use ($id) {
             $income = IncomeRecord::findOrFail($id);
             $rcNumber = $income->rc_number;
@@ -2408,7 +2337,7 @@ class BudgetController extends Controller
                     CashReceipt::where('invoice_id', $record->invoice_id)
                         ->where('receipt_no', $record->rc_number)
                         ->delete();
-
+                    
                     // Also try matching the potential suffixed receipt
                     CashReceipt::where('invoice_id', $record->invoice_id)
                         ->where('receipt_no', 'LIKE', $record->rc_number . '-%')
@@ -2421,7 +2350,7 @@ class BudgetController extends Controller
                 IncomeRecord::where('rc_number', $rcNumber)
                     ->where('income_date', $income->income_date)
                     ->delete();
-
+                
                 // Final safety: ensuring all cash receipts for this RC are gone
                 CashReceipt::where('receipt_no', $rcNumber)->delete();
                 CashReceipt::where('receipt_no', 'LIKE', $rcNumber . '-%')->delete();
@@ -2485,39 +2414,39 @@ class BudgetController extends Controller
     //         // Calculate balance for main invoice
     //         if ($request->invoice_id && $request->invoice_value) {
     //             $invoiceValue = $this->parseFormattedNumber($request->invoice_value);
-
+                
     //             // Get previous payments for this invoice
     //             $previousPayments = IncomeRecord::where('invoice_id', $request->invoice_id)
     //                 ->where('rc_number', '!=', null)
     //                 ->sum('total_paid');
-
+                
     //             // Calculate balance after this payment
     //             $newBalance = $invoiceValue - $previousPayments - $totalPaid;
-
+                
     //             // If payment + other amounts >= invoice value, mark as fully paid
     //             if ($totalPaid >= $invoiceValue - $previousPayments) {
     //                 $data['balance'] = 0;
-
+                    
     //                 // Calculate surplus if payment exceeds remaining balance
     //                 $surplus = $totalPaid - ($invoiceValue - $previousPayments);
-
+                    
     //                 // If there's a surplus and a second invoice is selected
     //                 if ($surplus > 0 && $request->surplus_invoice_id && $request->surplus_amount) {
     //                     $surplusAmount = $this->parseFormattedNumber($request->surplus_amount);
-
+                        
     //                     // Validate surplus amount doesn't exceed actual surplus
     //                     if ($surplusAmount > $surplus) {
     //                         throw new \Exception('Surplus amount cannot exceed the actual surplus of $' . number_format($surplus, 2));
     //                     }
-
+                        
     //                     // Create separate income record for surplus invoice
     //                     $surplusInvoice = RegisterInvoice::findOrFail($request->surplus_invoice_id);
     //                     $surplusPreviousPayments = IncomeRecord::where('invoice_id', $request->surplus_invoice_id)
     //                         ->where('rc_number', '!=', null)
     //                         ->sum('total_paid');
-
+                        
     //                     $surplusBalance = (float)$surplusInvoice->total - $surplusPreviousPayments - $surplusAmount;
-
+                        
     //                     $surplusData = [
     //                         'mode' => $request->mode,
     //                         'bank_code' => $request->bank_code,
@@ -2539,9 +2468,9 @@ class BudgetController extends Controller
     //                         'rc_date' => $request->rc_date,
     //                         'created_by' => auth()->id(),
     //                     ];
-
+                        
     //                     IncomeRecord::create($surplusData);
-
+                        
     //                     // Create cash receipt for surplus invoice
     //                     if ($request->surplus_rc_number) {
     //                         CashReceipt::create([
@@ -2584,7 +2513,7 @@ class BudgetController extends Controller
     //             'message' => 'Income registered successfully',
     //             'id' => $income->id
     //         ]);
-
+            
     //     } catch (\Exception $e) {
     //         DB::rollBack();
     //         return response()->json([
@@ -2642,39 +2571,39 @@ class BudgetController extends Controller
     //         // Calculate balance for main invoice
     //         if ($request->invoice_id && $request->invoice_value) {
     //             $invoiceValue = $this->parseFormattedNumber($request->invoice_value);
-
+                
     //             // Get previous payments for this invoice
     //             $previousPayments = IncomeRecord::where('invoice_id', $request->invoice_id)
     //                 ->where('rc_number', '!=', null)
     //                 ->sum('total_paid');
-
+                
     //             // Calculate balance after this payment
     //             $newBalance = $invoiceValue - $previousPayments - $totalPaid;
-
+                
     //             // If payment + other amounts >= invoice value, mark as fully paid
     //             if ($totalPaid >= $invoiceValue - $previousPayments) {
     //                 $data['balance'] = 0;
-
+                    
     //                 // Calculate surplus if payment exceeds remaining balance
     //                 $surplus = $totalPaid - ($invoiceValue - $previousPayments);
-
+                    
     //                 // If there's a surplus and a second invoice is selected
     //                 if ($surplus > 0 && $request->surplus_invoice_id && $request->surplus_amount) {
     //                     $surplusAmount = $this->parseFormattedNumber($request->surplus_amount);
-
+                        
     //                     // Validate surplus amount doesn't exceed actual surplus
     //                     if ($surplusAmount > $surplus) {
     //                         throw new \Exception('Surplus amount cannot exceed the actual surplus of $' . number_format($surplus, 2));
     //                     }
-
+                        
     //                     // Create separate income record for surplus invoice
     //                     $surplusInvoice = RegisterInvoice::findOrFail($request->surplus_invoice_id);
     //                     $surplusPreviousPayments = IncomeRecord::where('invoice_id', $request->surplus_invoice_id)
     //                         ->where('rc_number', '!=', null)
     //                         ->sum('total_paid');
-
+                        
     //                     $surplusBalance = (float)$surplusInvoice->total - $surplusPreviousPayments - $surplusAmount;
-
+                        
     //                     $surplusData = [
     //                         'mode' => $request->mode,
     //                         'bank_code' => $request->bank_code,
@@ -2696,9 +2625,9 @@ class BudgetController extends Controller
     //                         'rc_date' => $request->rc_date,
     //                         'created_by' => auth()->id(),
     //                     ];
-
+                        
     //                     IncomeRecord::create($surplusData);
-
+                        
     //                     // Create cash receipt for surplus invoice
     //                     if ($request->surplus_rc_number) {
     //                         CashReceipt::create([
@@ -2742,7 +2671,7 @@ class BudgetController extends Controller
     //             'id' => $income->id,
     //             'invoice_updated' => $request->invoice_id ? true : false
     //         ]);
-
+            
     //     } catch (\Exception $e) {
     //         DB::rollBack();
     //         return response()->json([
@@ -2752,22 +2681,13 @@ class BudgetController extends Controller
     //     }
     // }
 
-    public function storeIncome(Request $request)
-    {
-        // Pre-sanitize numeric fields to support comma-formatted values
+    public function storeIncome(Request $request) {
+        // Pre-sanitize invoice_amounts to ensure numeric validation passes
         if ($request->has('invoice_amounts')) {
-            $cleanAmounts = array_map(function ($amt) {
-                return (string) $this->parseFormattedNumber($amt);
+            $cleanAmounts = array_map(function($amt) {
+                return preg_replace('/[^0-9.\-]/', '', (string)$amt);
             }, $request->invoice_amounts);
             $request->merge(['invoice_amounts' => $cleanAmounts]);
-        }
-
-        foreach (['income_amount', 'other_amounts', 'surplus_amount'] as $field) {
-            if ($request->has($field)) {
-                $request->merge([
-                    $field => (string) $this->parseFormattedNumber($request->input($field))
-                ]);
-            }
         }
 
         $request->validate([
@@ -2790,10 +2710,12 @@ class BudgetController extends Controller
         ]);
 
         // Multi-invoice distribution validation
-        $totalIncome = $this->parseFormattedNumber($request->income_amount ?? 0);
-        $distributed = collect($request->invoice_amounts ?? [])->map(function ($amt) {
-            return $this->parseFormattedNumber($amt);
-        })->sum();
+        $totalIncome = $request->income_amount ?? 0;
+        $distributed = collect($request->invoice_amounts ?? [])->sum();
+
+        // Safety: Normalize for commas if they persist
+        $totalIncome = (float) str_replace(',', '', $totalIncome);
+        $distributed = (float) str_replace(',', '', $distributed);
 
         // Multi-invoice distribution validation with rounding tolerance (0.01)
         if ($distributed > 0 && abs($distributed - $totalIncome) > 0.01) {
@@ -2862,7 +2784,7 @@ class BudgetController extends Controller
 
             foreach ($invoiceIds as $index => $invoiceId) {
                 $distributedAmount = isset($invoiceAmounts[$index]) ? (float)$invoiceAmounts[$index] : 0;
-
+                
                 if ($count === 1 && $distributedAmount === 0) {
                     $distributedAmount = $incomeAmount;
                 }
@@ -2969,6 +2891,7 @@ class BudgetController extends Controller
                 'id' => $income->id,
                 'invoice_updated' => $request->invoice_id ? true : false
             ]);
+            
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -2978,15 +2901,14 @@ class BudgetController extends Controller
         }
     }
 
-    public function getCompanyInvoices($companyId, Request $request)
-    {
+    public function getCompanyInvoices($companyId, Request $request) {
         // Get income date from request if provided
         $incomeDate = $request->get('income_date');
-
+        
         // Get all invoices for this company with remaining balance
         $invoices = RegisterInvoice::where('commercialID', $companyId)
             ->with('budget')
-            ->when($incomeDate, function ($query) use ($incomeDate) {
+            ->when($incomeDate, function($query) use ($incomeDate) {
                 // If income date is provided, filter invoices with date <= income date
                 return $query->whereDate('invoiceDate', '<=', $incomeDate);
             })
@@ -2995,27 +2917,26 @@ class BudgetController extends Controller
             ->map(function ($invoice) {
                 // Calculate amounts paid via cash receipts
                 $totalPaid = (float) CashReceipt::where('invoice_id', $invoice->id)->sum('amount');
-
+                
                 // Calculate credit note amount
                 $cnTotal = (float) CreditNote::where(
-                    'invoice_id',
-                    $invoice->id
+                    'invoice_id', $invoice->id
                 )->sum('total');
-
+                
                 // Calculate remaining balance
                 $balance = max((float) $invoice->total - $totalPaid - $cnTotal, 0);
-
+                
                 // Only return invoices with remaining balance > 0.01 (to account for rounding)
                 if ($balance < 0.01) {
                     return null;
                 }
-
+                
                 $budget = Budget::find($invoice->budgetID);
-
+                
                 return [
                     'id'              => $invoice->id,
                     'invoice_number'  => $invoice->invoiceNumber,
-                    'invoice_date'    => $invoice->invoiceDate
+                    'invoice_date'    => $invoice->invoiceDate 
                         ? Carbon::parse($invoice->invoiceDate)->format('Y-m-d')
                         : null,
                     'concept'         => $budget?->licensedConcept ?? $invoice->licensedConcept ?? 'N/A',
@@ -3030,24 +2951,23 @@ class BudgetController extends Controller
             })
             ->filter() // Remove null entries (fully paid invoices)
             ->values();
-
+        
         return response()->json($invoices);
     }
 
-    public function getIncome($id)
-    {
+    public function getIncome($id) {
         $income = IncomeRecord::findOrFail($id);
-
+        
         $client = null;
         if ($income->company_id) {
             $client = Clients::find($income->company_id);
         }
-
+        
         $invoice = null;
         if ($income->invoice_id) {
             $invoice = RegisterInvoice::find($income->invoice_id);
         }
-
+        
         return response()->json([
             'id' => $income->id,
             'mode' => $income->mode,
@@ -3073,10 +2993,9 @@ class BudgetController extends Controller
         ]);
     }
 
-    public function updateIncome(Request $request, $id)
-    {
+    public function updateIncome(Request $request, $id) {
         $income = IncomeRecord::findOrFail($id);
-
+        
         $request->validate([
             'mode'          => 'required|in:Transfer,Deposit',
             'bank_code'     => 'required|string',
@@ -3101,9 +3020,7 @@ class BudgetController extends Controller
                 && $request->receipt_consecutive_id
             ) {
                 $receiptConsecutive = ReceiptConsecutive::where(
-                    'id',
-                    $request->receipt_consecutive_id
-                )
+                    'id', $request->receipt_consecutive_id)
                     ->lockForUpdate()
                     ->first();
 
@@ -3116,8 +3033,8 @@ class BudgetController extends Controller
                     );
                     $rcNumber = (
                         $rcPrefix !== ''
-                        ? $rcPrefix . '-'
-                        : 'RC-'
+                            ? $rcPrefix . '-'
+                            : 'RC-'
                     ) . $rcNext;
                     $receiptConsecutive->next_number = $rcNext + 1;
                     $receiptConsecutive->save();
@@ -3130,15 +3047,15 @@ class BudgetController extends Controller
             $totalPaid    = $incomeAmount + $otherAmounts;
 
             // Fix invoice_value parsing - remove $ and spaces before parsing
-            $rawInvoiceValue = $request->invoice_value
+            $rawInvoiceValue = $request->invoice_value 
                 ? preg_replace('/[^0-9,.]/', '', trim($request->invoice_value))
                 : null;
             $invoiceValue = $rawInvoiceValue
                 ? $this->parseFormattedNumber($rawInvoiceValue)
                 : (float) $income->invoice_value;
 
-            // Prefer the RC record's stored invoice value; only fallback when the value is missing.
-            if ($invoiceValue <= 0 && $request->invoice_id) {
+            // If invoice_value is still 0 or 1, get it from the actual invoice
+            if ($invoiceValue <= 1 && $request->invoice_id) {
                 $invoiceRecord = RegisterInvoice::find($request->invoice_id);
                 if ($invoiceRecord) {
                     $invoiceValue = (float) $invoiceRecord->total;
@@ -3178,9 +3095,7 @@ class BudgetController extends Controller
             // Handle CashReceipt creation or update
             if ($rcNumber && $request->invoice_id) {
                 $existingRC = CashReceipt::where(
-                    'invoice_id',
-                    $request->invoice_id
-                )
+                    'invoice_id', $request->invoice_id)
                     ->where('receipt_no', $rcNumber)
                     ->first();
 
@@ -3213,31 +3128,27 @@ class BudgetController extends Controller
                 if ($invoice) {
                     // Get total paid via cash receipts
                     $totalPaidSoFar = CashReceipt::where(
-                        'invoice_id',
-                        $invoice->id
+                        'invoice_id', $invoice->id
                     )->sum('amount');
 
                     // Get total credit notes for this invoice
                     $totalCreditNotes = \App\Models\CreditNote::where(
-                        'invoice_id',
-                        $invoice->id
+                        'invoice_id', $invoice->id
                     )->sum('total');
 
                     // Calculate balance including credit notes
                     $newBalance = max(
                         (float)$invoice->total
-                            - $totalPaidSoFar
-                            - $totalCreditNotes,
+                        - $totalPaidSoFar
+                        - $totalCreditNotes,
                         0
                     );
 
                     // Determine correct status
                     if ($newBalance <= 0) {
                         $invoiceStatus = 'Paid';
-                    } elseif (
-                        $totalPaidSoFar > 0
-                        || $totalCreditNotes > 0
-                    ) {
+                    } elseif ($totalPaidSoFar > 0
+                        || $totalCreditNotes > 0) {
                         $invoiceStatus = 'Partial';
                     } else {
                         $invoiceStatus = 'On time';
@@ -3292,10 +3203,11 @@ class BudgetController extends Controller
                 'status'  => true,
                 'message' => $rcAutoGenerated
                     ? 'Income updated successfully. RC Number: '
-                    . $rcNumber
+                        . $rcNumber
                     : 'Income updated successfully',
                 'rc_number' => $rcNumber,
             ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -3305,8 +3217,7 @@ class BudgetController extends Controller
         }
     }
 
-    public function downloadIncomeReport(Request $request)
-    {
+    public function downloadIncomeReport (Request $request) {
 
         $start = $request->get('start_date');
         $end   = $request->get('end_date');
@@ -3457,30 +3368,29 @@ class BudgetController extends Controller
         exit;
     }
 
-    public function getInvoiceDetails($invoiceId)
-    {
+    public function getInvoiceDetails($invoiceId) {
         $invoice = RegisterInvoice::with('budget')->find($invoiceId);
-
+        
         if (!$invoice) {
             return response()->json(['error' => 'Invoice not found'], 404);
         }
-
+        
         $budget = Budget::find($invoice->budgetID);
-
+        
         // Calculate amounts paid via cash receipts
         $totalPaid = (float) CashReceipt::where('invoice_id', $invoice->id)->sum('amount');
-
+        
         // Calculate credit note amount
         $cn = CreditNote::where('invoice_id', $invoice->id)->first();
         $cnTotal = $cn ? (float) $cn->total : 0.0;
-
+        
         // Calculate remaining balance
         $balance = max((float) $invoice->total - $totalPaid - $cnTotal, 0);
-
+        
         return response()->json([
             'id'              => $invoice->id,
             'invoice_number'  => $invoice->invoiceNumber,
-            'invoice_date'    => $invoice->invoiceDate
+            'invoice_date'    => $invoice->invoiceDate 
                 ? Carbon::parse($invoice->invoiceDate)->format('Y-m-d')
                 : null,
             'concept'         => $budget?->concept ?? $invoice->licensedConcept ?? 'N/A',
@@ -3494,8 +3404,7 @@ class BudgetController extends Controller
         ]);
     }
 
-    private function calculateIncomeTotals($start = null, $end = null)
-    {
+    private function calculateIncomeTotals($start = null, $end = null) {
         $query = IncomeRecord::query()
             ->when($start, fn($q) => $q->whereDate('income_date', '>=', $start))
             ->when($end, fn($q) => $q->whereDate('income_date', '<=', $end));
@@ -3515,7 +3424,7 @@ class BudgetController extends Controller
             ->groupBy('concept')
             ->get();
 
-        $conceptTotals = $byConceptQuery->mapWithKeys(function ($item) {
+        $conceptTotals = $byConceptQuery->mapWithKeys(function($item) {
             return [$item->concept => (float)$item->total];
         })->toArray();
 
@@ -3527,14 +3436,13 @@ class BudgetController extends Controller
         ];
     }
 
-    public function getIncomeTotalsByConcept(Request $request)
-    {
+    public function getIncomeTotalsByConcept(Request $request) {
         $start = $request->start_date;
         $end   = $request->end_date;
         $query = IncomeRecord::query()
             ->leftJoin('register_invoice as ri', 'income_records.invoice_id', '=', 'ri.id')
             ->leftJoin('budget as b', 'ri.budgetID', '=', 'b.id');
-
+            
         if ($start && $end) {
             $query->whereBetween('income_records.income_date', [$start, $end]);
         } elseif ($start) {
@@ -3576,53 +3484,52 @@ class BudgetController extends Controller
 
 
     // ==================== VALIDATION METHODS ====================
-    public function getValidationData(Request $request)
-    {
+    public function getValidationData(Request $request) {
         $query = Validation::with(['accountant', 'management', 'creator']);
-
+        
         if ($request->filled('report_type')) {
             $query->where('report_type', $request->report_type);
         }
-
+        
         if ($request->filled('status')) {
             if ($request->status === 'pending_accountant') {
                 $query->where('accountant_status', 'pending');
             } elseif ($request->status === 'pending_management') {
                 $query->where('accountant_status', 'approved')
-                    ->where('management_status', 'pending');
+                      ->where('management_status', 'pending');
             } elseif ($request->status === 'approved') {
                 $query->where('accountant_status', 'approved')
-                    ->where('management_status', 'approved');
+                      ->where('management_status', 'approved');
             } elseif ($request->status === 'rejected') {
-                $query->where(function ($q) {
+                $query->where(function($q) {
                     $q->where('accountant_status', 'rejected')
-                        ->orWhere('management_status', 'rejected');
+                      ->orWhere('management_status', 'rejected');
                 });
             }
         }
-
+        
         if ($request->filled('period_start')) {
             $query->where('period_start', '>=', $request->period_start);
         }
-
+        
         if ($request->filled('period_end')) {
             $query->where('period_end', '<=', $request->period_end);
         }
-
+        
         return DataTables::of($query)
             ->addIndexColumn()
-            ->addColumn('report_type', function ($row) {
+            ->addColumn('report_type', function($row) {
                 $badges = [
                     'billing' => '<span class="badge bg-primary">Billing</span>',
                     'income' => '<span class="badge bg-success">Income</span>'
                 ];
                 return $badges[$row->report_type] ?? '<span class="badge bg-secondary">N/A</span>';
             })
-            ->addColumn('period', function ($row) {
-                return date('M d, Y', strtotime($row->period_start)) . ' - ' .
-                    date('M d, Y', strtotime($row->period_end));
+            ->addColumn('period', function($row) {
+                return date('M d, Y', strtotime($row->period_start)) . ' - ' . 
+                       date('M d, Y', strtotime($row->period_end));
             })
-            ->addColumn('status', function ($row) {
+            ->addColumn('status', function($row) {
                 $status = $row->status;
                 $badges = [
                     'Pending Accountant Validation' => 'warning',
@@ -3631,35 +3538,35 @@ class BudgetController extends Controller
                     'Rejected by Accountant' => 'danger',
                     'Rejected by Management' => 'danger'
                 ];
-
+                
                 $color = $badges[$status] ?? 'secondary';
                 return '<span class="badge bg-' . $color . '">' . $status . '</span>';
             })
-            ->addColumn('accountant', function ($row) {
+            ->addColumn('accountant', function($row) {
                 if ($row->accountant) {
                     $html = '<div>' . $row->accountant->name . '</div>';
                     if ($row->accountant_validated_at) {
-                        $html .= '<small class="text-muted">' .
-                            $row->accountant_validated_at->format('M d, Y H:i') .
-                            '</small>';
+                        $html .= '<small class="text-muted">' . 
+                                $row->accountant_validated_at->format('M d, Y H:i') . 
+                                '</small>';
                     }
                     return $html;
                 }
                 return '<span class="text-muted">Pending</span>';
             })
-            ->addColumn('management', function ($row) {
+            ->addColumn('management', function($row) {
                 if ($row->management) {
                     $html = '<div>' . $row->management->name . '</div>';
                     if ($row->management_validated_at) {
-                        $html .= '<small class="text-muted">' .
-                            $row->management_validated_at->format('M d, Y H:i') .
-                            '</small>';
+                        $html .= '<small class="text-muted">' . 
+                                $row->management_validated_at->format('M d, Y H:i') . 
+                                '</small>';
                     }
                     return $html;
                 }
                 return '<span class="text-muted">Pending</span>';
             })
-            ->addColumn('totals', function ($row) {
+            ->addColumn('totals', function($row) {
                 $data = $row->concepts_data;
                 $total = 0;
                 if (isset($data['grandTotal'])) {
@@ -3667,50 +3574,46 @@ class BudgetController extends Controller
                 }
                 return $this->formatCurrency($total);
             })
-            ->addColumn('creator_name', function ($row) {
+            ->addColumn('creator_name', function($row) {
                 return $row->creator ? $row->creator->name : 'N/A';
             })
             ->addColumn('created_at', function ($row) {
-                if (!empty($row->created_at)) {
+                if(!empty($row->created_at)){
                     return date('d-m-Y', strtotime($row->created_at));
                 }
             })
-            ->addColumn('action', function ($row) {
+            ->addColumn('action', function($row) {
                 $buttons = '<div class="btn-group" role="group">';
-
+                
                 // View/Validate button
                 $buttons .= '<button type="button" class="btn btn-soft-primary btn-sm" onclick="viewValidation(' . $row->id . ')" title="View/Validate">
                     <iconify-icon icon="solar:eye-bold" class="fs-18"></iconify-icon>
                 </button>';
-
+                
                 // Edit button (only for creator or admin when pending)
-                if (($row->created_by == auth()->id() || auth()->user()->hasRole('admin')) &&
-                    $row->accountant_status == 'pending' && !$row->is_locked
-                ) {
+                if (($row->created_by == auth()->id() || auth()->user()->hasRole('admin')) && 
+                    $row->accountant_status == 'pending' && !$row->is_locked) {
                     $buttons .= '<button type="button" class="btn btn-soft-info btn-sm" onclick="editValidation(' . $row->id . ')" title="Edit">
                         <iconify-icon icon="solar:pen-new-square-linear" class="fs-18"></iconify-icon>
                     </button>';
                 }
-
+                
                 // Delete button (only for creator or admin when not approved)
-                if (($row->created_by == auth()->id() || auth()->user()->hasRole('admin')) &&
-                    !($row->accountant_status === 'approved' && $row->management_status === 'approved')
-                ) {
+                if (($row->created_by == auth()->id() || auth()->user()->hasRole('admin')) && 
+                    !($row->accountant_status === 'approved' && $row->management_status === 'approved')) {
                     $buttons .= '<button type="button" class="btn btn-soft-danger btn-sm" onclick="deleteValidation(' . $row->id . ')" title="Delete">
                         <iconify-icon icon="solar:trash-bin-trash-bold" class="fs-18"></iconify-icon>
                     </button>';
                 }
-
+                
                 // Resend button (admin only for rejected reports)
-                if (
-                    auth()->user()->hasRole('admin') &&
-                    ($row->accountant_status === 'rejected' || $row->management_status === 'rejected')
-                ) {
+                if (auth()->user()->hasRole('admin') && 
+                    ($row->accountant_status === 'rejected' || $row->management_status === 'rejected')) {
                     $buttons .= '<button type="button" class="btn btn-soft-warning btn-sm" onclick="resendValidation(' . $row->id . ')" title="Resend">
                         <iconify-icon icon="solar:restart-bold" class="fs-18"></iconify-icon>
                     </button>';
                 }
-
+                
                 $buttons .= '</div>';
                 return $buttons;
             })
@@ -3718,65 +3621,63 @@ class BudgetController extends Controller
             ->make(true);
     }
 
-    public function createValidation(Request $request)
-    {
+    public function createValidation(Request $request) {
         $request->validate([
             'report_type' => 'required|in:billing,income',
             'period_start' => 'required|date',
             'period_end' => 'required|date|after_or_equal:period_start',
             'title' => 'nullable|string|max:255'
         ]);
-
+        
         // Check if validation already exists for this period and type
         $existing = Validation::where('report_type', $request->report_type)
             ->where('period_start', $request->period_start)
             ->where('period_end', $request->period_end)
             ->first();
-
+        
         if ($existing) {
             return response()->json([
                 'status' => false,
                 'message' => 'A validation report already exists for this period and type'
             ], 422);
         }
-
+        
         DB::beginTransaction();
-
+        
         try {
             // Gather data based on report type
             $conceptsData = [];
             $items = [];
-
+            
             if ($request->report_type === 'billing') {
                 $invoices = RegisterInvoice::whereBetween('invoiceDate', [
-                    $request->period_start,
-                    $request->period_end
+                    $request->period_start, $request->period_end
                 ])->get();
-
+                
                 if ($invoices->isEmpty()) {
                     return response()->json([
                         'status' => false,
                         'message' => 'No invoices found for the selected period'
                     ], 422);
                 }
-
+                
                 // Group by concept
-                $grouped = $invoices->groupBy('licensedConcept')->map(function ($group) {
+                $grouped = $invoices->groupBy('licensedConcept')->map(function($group) {
                     return [
                         'subTotal' => $group->sum('subTotal'),
-                        'vat' => $group->sum(function ($inv) {
+                        'vat' => $group->sum(function($inv) {
                             return $inv->total - $inv->subTotal;
                         }),
                         'total' => $group->sum('total'),
                         'count' => $group->count()
                     ];
                 });
-
+                
                 $conceptsData = [
                     'sections' => [
                         'invoices' => [
                             'title' => 'Invoices by Concept',
-                            'concepts' => $grouped->map(function ($data, $concept) {
+                            'concepts' => $grouped->map(function($data, $concept) {
                                 return [
                                     'name' => $concept ?: 'Uncategorized',
                                     'subTotal' => $data['subTotal'],
@@ -3794,7 +3695,7 @@ class BudgetController extends Controller
                         'count' => $invoices->count()
                     ]
                 ];
-
+                
                 // Prepare validation items
                 foreach ($invoices as $invoice) {
                     $items[] = [
@@ -3806,32 +3707,32 @@ class BudgetController extends Controller
                         'management_status' => 'pending'
                     ];
                 }
+                
             } elseif ($request->report_type === 'income') {
                 $incomes = IncomeRecord::whereBetween('income_date', [
-                    $request->period_start,
-                    $request->period_end
+                    $request->period_start, $request->period_end
                 ])->get();
-
+                
                 if ($incomes->isEmpty()) {
                     return response()->json([
                         'status' => false,
                         'message' => 'No income records found for the selected period'
                     ], 422);
                 }
-
+                
                 // Group by concept
-                $grouped = $incomes->groupBy('concept')->map(function ($group) {
+                $grouped = $incomes->groupBy('concept')->map(function($group) {
                     return [
                         'total' => $group->sum('total_paid'),
                         'count' => $group->count()
                     ];
                 });
-
+                
                 $conceptsData = [
                     'sections' => [
                         'income' => [
                             'title' => 'Income by Concept',
-                            'concepts' => $grouped->map(function ($data, $concept) {
+                            'concepts' => $grouped->map(function($data, $concept) {
                                 return [
                                     'name' => $concept ?: 'Uncategorized',
                                     'total' => $data['total'],
@@ -3845,7 +3746,7 @@ class BudgetController extends Controller
                         'count' => $incomes->count()
                     ]
                 ];
-
+                
                 // Prepare validation items
                 foreach ($incomes as $income) {
                     $items[] = [
@@ -3858,7 +3759,7 @@ class BudgetController extends Controller
                     ];
                 }
             }
-
+            
             // Create validation record
             $validation = Validation::create([
                 'report_type' => $request->report_type,
@@ -3870,22 +3771,23 @@ class BudgetController extends Controller
                 'management_status' => 'pending',
                 'created_by' => auth()->id(),
             ]);
-
+            
             // Create validation items
             foreach ($items as $item) {
                 $validation->items()->create($item);
             }
-
+            
             // Send notification to accountants
             $this->sendValidationNotification($validation, 'Contador');
-
+            
             DB::commit();
-
+            
             return response()->json([
                 'status' => true,
                 'message' => 'Validation report created successfully',
                 'id' => $validation->id
             ]);
+            
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -3895,35 +3797,33 @@ class BudgetController extends Controller
         }
     }
 
-    public function getValidation($id)
-    {
+    public function getValidation($id) {
         $validation = Validation::with([
-            'items.invoice',
-            'items.income',
-            'accountant',
-            'management',
+            'items.invoice', 
+            'items.income', 
+            'accountant', 
+            'management', 
             'creator'
         ])->findOrFail($id);
-
+        
         $userRole = $this->getUserValidationRole();
         $canValidate = $this->canUserValidate($validation, $userRole);
-
+        
         // Get items grouped by concept
         $itemsByConcept = $validation->items->groupBy('concept');
-
+        
         return response()->json([
             'status' => true,
             'validation' => $validation,
             'items_by_concept' => $itemsByConcept,
-            'can_edit' => ($validation->created_by == auth()->id() || auth()->user()->hasRole('admin')) &&
-                $validation->accountant_status == 'pending',
+            'can_edit' => ($validation->created_by == auth()->id() || auth()->user()->hasRole('admin')) && 
+                          $validation->accountant_status == 'pending',
             'user_role' => $userRole,
             'can_validate' => $canValidate
         ]);
     }
 
-    private function getValidationReportSummary(Validation $validation)
-    {
+    private function getValidationReportSummary(Validation $validation) {
         if ($validation->report_type === 'billing') {
             return DB::table('billing_list')
                 ->whereNotNull('invoiceNumber')
@@ -3961,8 +3861,7 @@ class BudgetController extends Controller
             ->values();
     }
 
-    private function getValidationReportDetails(Validation $validation)
-    {
+    private function getValidationReportDetails(Validation $validation) {
         // ALL report types use income-only data — the billing early return that
         // injected 'invoiceNumber as no_fc' has been removed to prevent FC data
         // from ever appearing in the No. RC column.
@@ -3992,8 +3891,8 @@ class BudgetController extends Controller
 
             // Client — never 'N/A', never an internal ID
             $client = $income->company
-                ?? $income->commercial_name
-                ?? 'UNKNOWN CLIENT';
+                   ?? $income->commercial_name
+                   ?? 'UNKNOWN CLIENT';
 
             // Date
             $date = $income->income_date ?? '-';
@@ -4003,9 +3902,9 @@ class BudgetController extends Controller
 
             // Value — prefer validated amount, then original, then income total_paid
             $value = $item->validated_amount
-                ?? $item->original_amount
-                ?? $income->total_paid
-                ?? 0;
+                  ?? $item->original_amount
+                  ?? $income->total_paid
+                  ?? 0;
 
             $results[] = (object) [
                 'no_fc'   => $number,   // Always RC-xxx, never FC/invoiceNumber/raw ID
@@ -4019,59 +3918,46 @@ class BudgetController extends Controller
         return collect($results);
     }
 
-    public function viewValidation($id)
-    {
+    public function viewValidation($id) {
         $validation = Validation::with([
-            'items' => function ($query) {
+            'items' => function($query) {
                 // Income-only filter at DB level — no invoice rows ever loaded
                 $query->where('item_type', 'income')
-                    ->with([
-                        // Include all fields needed for rendering
-                        'income:id,rc_number,company,commercial_name,income_date,total_paid',
-                    ]);
+                      ->with([
+                          // Include all fields needed for rendering
+                          'income:id,rc_number,company,commercial_name,income_date,total_paid',
+                      ]);
             },
-            'accountant',
-            'management',
+            'accountant', 
+            'management', 
             'creator'
         ])->findOrFail($id);
-
+        
         $userRole = $this->getUserValidationRole();
         $canValidate = $this->canUserValidate($validation, $userRole);
-
+        
         // Group items by concept
         $itemsByConcept = $validation->items->groupBy('concept');
         $summary = $this->getValidationReportSummary($validation);
         $details = $this->getValidationReportDetails($validation);
-
+        
         // Return HTML for modal (AJAX request)
         if (request()->ajax()) {
             return view('budget.validations.modal-content', compact(
-                'validation',
-                'userRole',
-                'canValidate',
-                'itemsByConcept',
-                'summary',
-                'details'
+                'validation', 'userRole', 'canValidate', 'itemsByConcept', 'summary', 'details'
             ))->render();
         }
-
+        
         // Return full page view
         $pageTitle = 'Validation Report';
         return view('budget.validations.view', compact(
-            'pageTitle',
-            'validation',
-            'userRole',
-            'canValidate',
-            'itemsByConcept',
-            'summary',
-            'details'
+            'pageTitle', 'validation', 'userRole', 'canValidate', 'itemsByConcept', 'summary', 'details'
         ));
     }
 
-    public function updateValidation(Request $request, $id)
-    {
+    public function updateValidation(Request $request, $id) {
         $validation = Validation::findOrFail($id);
-
+        
         // Check permissions
         if ($validation->created_by !== auth()->id() && !auth()->user()->hasRole('admin')) {
             return response()->json([
@@ -4079,7 +3965,7 @@ class BudgetController extends Controller
                 'message' => 'You are not authorized to edit this report'
             ], 403);
         }
-
+        
         // Check if validation can be edited
         if ($validation->accountant_status !== 'pending' || $validation->is_locked) {
             return response()->json([
@@ -4087,37 +3973,36 @@ class BudgetController extends Controller
                 'message' => 'Cannot edit validation that has been processed or is locked'
             ], 422);
         }
-
+        
         $request->validate([
             'title' => 'nullable|string|max:255',
             'period_start' => 'required|date',
             'period_end' => 'required|date|after_or_equal:period_start'
         ]);
-
+        
         $validation->update([
             'title' => $request->title,
             'period_start' => $request->period_start,
             'period_end' => $request->period_end
         ]);
-
+        
         return response()->json([
             'status' => true,
             'message' => 'Validation report updated successfully'
         ]);
     }
 
-    public function submitValidation(Request $request, $id)
-    {
+    public function submitValidation(Request $request, $id) {
         $validation = Validation::with('items')->findOrFail($id);
         $userRole = $this->getUserValidationRole();
-
+        
         if (!$this->canUserValidate($validation, $userRole)) {
             return response()->json([
                 'status' => false,
                 'message' => 'You are not authorized to validate this report'
             ], 403);
         }
-
+        
         $request->validate([
             'action' => 'required|in:approve,reject',
             'notes' => 'required_if:action,reject|nullable|string|max:1000',
@@ -4126,39 +4011,40 @@ class BudgetController extends Controller
             'items.*.notes' => 'nullable|string|max:500',
             'items.*.validated_amount' => 'nullable|numeric|min:0'
         ]);
-
+        
         DB::beginTransaction();
-
+        
         try {
             $hasRejectedItems = false;
-
+            
             // Process individual items first
             if ($request->has('items')) {
                 foreach ($request->items as $itemId => $itemData) {
                     $validationItem = $validation->items()->find($itemId);
                     if (!$validationItem) continue;
-
+                    
                     if ($userRole === 'Contador') {
                         $updateData = [
                             'accountant_status' => $itemData['status'],
                             'accountant_notes' => $itemData['notes'] ?? null
                         ];
-
+                        
                         if (isset($itemData['validated_amount']) && $itemData['validated_amount'] !== null) {
                             $updateData['validated_amount'] = $itemData['validated_amount'];
                         }
-
+                        
                         if ($itemData['status'] === 'rejected') {
                             $hasRejectedItems = true;
                         }
-
+                        
                         $validationItem->update($updateData);
+                        
                     } elseif ($userRole === 'Gerencia') {
                         $validationItem->update([
                             'management_status' => $itemData['status'],
                             'management_notes' => $itemData['notes'] ?? null
                         ]);
-
+                        
                         if ($itemData['status'] === 'rejected') {
                             $hasRejectedItems = true;
                         }
@@ -4172,14 +4058,14 @@ class BudgetController extends Controller
                             'accountant_status' => $itemData['status'],
                             'management_status' => $itemData['status']
                         ]);
-
+                        
                         if ($itemData['status'] === 'rejected') {
                             $hasRejectedItems = true;
                         }
                     }
                 }
             }
-
+            
             // If any items are rejected, overall action must be reject
             if ($hasRejectedItems && $request->action === 'approve') {
                 DB::rollBack();
@@ -4188,14 +4074,14 @@ class BudgetController extends Controller
                     'message' => 'Cannot approve validation when some items are rejected. Please reject the entire report.'
                 ], 422);
             }
-
+            
             // Update validation record
             if ($userRole === 'Contador') {
                 $validation->accountant_id = auth()->id();
                 $validation->accountant_validated_at = now();
                 $validation->accountant_notes = $request->notes;
                 $validation->accountant_status = $request->action === 'approve' ? 'approved' : 'rejected';
-
+                
                 // Update overall status
                 if ($request->action === 'approve') {
                     $validation->status = 'Pending Management Validation';
@@ -4206,6 +4092,7 @@ class BudgetController extends Controller
                     // Notify admin about rejection
                     $this->sendValidationNotification($validation, 'admin', 'rejected_by_accountant');
                 }
+                
             } elseif ($userRole === 'Gerencia') {
                 // Check if accountant approved first
                 if ($validation->accountant_status !== 'approved') {
@@ -4215,12 +4102,12 @@ class BudgetController extends Controller
                         'message' => 'Accountant must approve before management validation'
                     ], 400);
                 }
-
+                
                 $validation->management_id = auth()->id();
                 $validation->management_validated_at = now();
                 $validation->management_notes = $request->notes;
                 $validation->management_status = $request->action === 'approve' ? 'approved' : 'rejected';
-
+                
                 if ($request->action === 'approve') {
                     // Lock the validation and update status
                     $validation->is_locked = true;
@@ -4233,15 +4120,16 @@ class BudgetController extends Controller
                     $this->sendValidationNotification($validation, 'Contador', 'rejected_by_management');
                 }
             }
-
+            
             $validation->save();
-
+            
             DB::commit();
-
+            
             return response()->json([
                 'status' => true,
                 'message' => 'Validation ' . ($request->action === 'approve' ? 'approved' : 'rejected') . ' successfully'
             ]);
+            
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Validation submission error: ' . $e->getMessage());
@@ -4252,10 +4140,9 @@ class BudgetController extends Controller
         }
     }
 
-    public function deleteValidation($id)
-    {
+    public function deleteValidation($id) {
         $validation = Validation::findOrFail($id);
-
+        
         // Check permissions
         if ($validation->created_by !== auth()->id() && !auth()->user()->hasRole('admin')) {
             return response()->json([
@@ -4263,7 +4150,7 @@ class BudgetController extends Controller
                 'message' => 'You are not authorized to delete this report'
             ], 403);
         }
-
+        
         // Check if validation can be deleted
         if ($validation->accountant_status === 'approved' && $validation->management_status === 'approved') {
             return response()->json([
@@ -4271,82 +4158,80 @@ class BudgetController extends Controller
                 'message' => 'Cannot delete fully approved validation report'
             ], 422);
         }
-
+        
         if ($validation->is_locked && !auth()->user()->hasRole('admin')) {
             return response()->json([
                 'status' => false,
                 'message' => 'Cannot delete locked validation report'
             ], 422);
         }
-
+        
         $validation->delete();
-
+        
         return response()->json([
             'status' => true,
             'message' => 'Validation report deleted successfully'
         ]);
     }
 
-    public function previewValidation(Request $request)
-    {
+    public function previewValidation(Request $request) {
         $request->validate([
             'report_type' => 'required|in:billing,income',
             'period_start' => 'required|date',
             'period_end' => 'required|date|after_or_equal:period_start',
         ]);
-
+        
         $html = '';
         $totalCount = 0;
         $totalAmount = 0;
-
+        
         if ($request->report_type === 'billing') {
             $invoices = RegisterInvoice::whereBetween('invoiceDate', [
-                $request->period_start,
-                $request->period_end
+                $request->period_start, $request->period_end
             ])->get();
-
+            
             if ($invoices->isEmpty()) {
                 return response()->json([
                     'status' => false,
                     'message' => 'No invoices found for the selected period'
                 ]);
             }
-
+            
             $grouped = $invoices->groupBy('licensedConcept');
-
+            
             foreach ($grouped as $concept => $items) {
                 $conceptTotal = $items->sum('total');
                 $count = $items->count();
                 $totalCount += $count;
                 $totalAmount += $conceptTotal;
-
+                
                 $html .= '<tr>';
                 $html .= '<td>' . ($concept ?: 'Uncategorized') . '</td>';
                 $html .= '<td class="text-end">' . $count . '</td>';
                 $html .= '<td class="text-end">' . $this->formatCurrency($conceptTotal) . '</td>';
                 $html .= '</tr>';
             }
+            
         } elseif ($request->report_type === 'income') {
             $incomes = IncomeRecord::whereBetween('income_date', [
-                $request->period_start,
-                $request->period_end
+                $request->period_start, $request->period_end
             ])->get();
-
+            
             if ($incomes->isEmpty()) {
                 return response()->json([
                     'status' => false,
                     'message' => 'No income records found for the selected period'
                 ]);
             }
-
+            
             $grouped = $incomes->groupBy('concept');
-
+            
             foreach ($grouped as $concept => $items) {
                 $conceptTotal = $items->sum('total_paid');
                 $count = $items->count();
                 $totalCount += $count;
                 $totalAmount += $conceptTotal;
-
+                
                 $html .= '<tr>';
                 $html .= '<td>' . ($concept ?: 'Uncategorized') . '</td>';
                 $html .= '<td class="text-end">' . $count . '</td>';
@@ -4354,14 +4239,14 @@ class BudgetController extends Controller
                 $html .= '</tr>';
             }
         }
-
+        
         // Add totals row
         $html .= '<tr class="fw-bold table-active">';
         $html .= '<td>Total</td>';
         $html .= '<td class="text-end">' . $totalCount . '</td>';
         $html .= '<td class="text-end">' . $this->formatCurrency($totalAmount) . '</td>';
         $html .= '</tr>';
-
+        
         return response()->json([
             'status' => true,
             'html' => $html,
@@ -4370,10 +4255,9 @@ class BudgetController extends Controller
         ]);
     }
 
-    public function resendValidation(Request $request, $id)
-    {
+    public function resendValidation(Request $request, $id) {
         $validation = Validation::findOrFail($id);
-
+        
         // Only admin can resend
         if (!auth()->user()->hasRole('admin')) {
             return response()->json([
@@ -4381,42 +4265,43 @@ class BudgetController extends Controller
                 'message' => 'Only administrators can resend validation reports'
             ], 403);
         }
-
+        
         $request->validate([
             'resend_to' => 'required|in:Accountant,Management',
             'unlock' => 'sometimes|boolean'
         ]);
-
+        
         if ($request->resend_to === 'Contador') {
             $validation->accountant_status = 'pending';
             $validation->accountant_id = null;
             $validation->accountant_validated_at = null;
-
+            
             // Keep notes for reference but reset status
             $validation->items()->update([
                 'accountant_status' => 'pending',
                 'validated_amount' => null
             ]);
+            
         } elseif ($request->resend_to === 'Gerencia') {
             $validation->management_status = 'pending';
             $validation->management_id = null;
             $validation->management_validated_at = null;
-
+            
             $validation->items()->update([
                 'management_status' => 'pending'
             ]);
         }
-
+        
         // Unlock if requested
         if ($request->unlock) {
             $validation->is_locked = false;
         }
-
+        
         $validation->save();
-
+        
         // Send notification
         $this->sendValidationNotification($validation, $request->resend_to, 'resent_for_review');
-
+        
         return response()->json([
             'status' => true,
             'message' => 'Validation report resent successfully'
@@ -4424,10 +4309,9 @@ class BudgetController extends Controller
     }
 
     // Helper methods
-    private function getUserValidationRole()
-    {
+    private function getUserValidationRole() {
         $user = auth()->user();
-
+        
         if ($user->hasRole('Contador') || $user->hasRole('Contador') || $user->hasRole('Contador')) {
             return 'Contador';
         } elseif ($user->hasRole('Gerencia') || $user->hasRole('Gerencia') || $user->hasRole('Gerencia')) {
@@ -4437,35 +4321,31 @@ class BudgetController extends Controller
         } elseif ($user->hasRole('Master Admin') || $user->hasRole('master admin')) {
             return 'master admin';
         }
-
+        
         return null;
     }
 
-    private function canUserValidate(Validation $validation, $userRole)
-    {
+    private function canUserValidate(Validation $validation, $userRole) {
         if ($userRole === 'admin') {
             return true;
         }
-
+        
         if ($userRole === 'Contador' && $validation->accountant_status === 'pending') {
             return true;
         }
-
-        if (
-            $userRole === 'Gerencia' &&
-            $validation->accountant_status === 'approved' &&
-            $validation->management_status === 'pending'
-        ) {
+        
+        if ($userRole === 'Gerencia' && 
+            $validation->accountant_status === 'approved' && 
+            $validation->management_status === 'pending') {
             return true;
         }
-
+        
         return false;
     }
 
-    private function sendValidationNotification(Validation $validation, $toRole, $type = 'new')
-    {
+    private function sendValidationNotification(Validation $validation, $toRole, $type = 'new') {
         $users = User::role($toRole)->get();
-
+        
         $messages = [
             'new' => 'A new validation report requires your attention',
             'rejected_by_accountant' => 'A validation report was rejected by the accountant',
@@ -4473,10 +4353,10 @@ class BudgetController extends Controller
             'fully_approved' => 'A validation report has been fully approved',
             'resent_for_review' => 'A validation report has been resent for your review'
         ];
-
+        
         $title = $type === 'new' ? 'Validation Required' : 'Validation Update';
         $message = $messages[$type] ?? $messages['new'];
-
+        
         // foreach ($users as $user) {
         //     Notification::create([
         //         'user_id' => $user->id,
@@ -4497,14 +4377,13 @@ class BudgetController extends Controller
     // Add these methods to your BudgetController class
     // ==================== DISTRIBUTIONS METHODS ====================
 
-    public function getDistributionsData(Request $request)
-    {
+    public function getDistributionsData(Request $request) {
         $statusFilter = $request->get('status', 'validated'); // validated, distributable, settled
-
+        
         $query = Distribution::query()
             ->with(['validation', 'income', 'creator'])
             ->orderBy('created_at', 'desc');
-
+        
         // Apply status filters
         if ($statusFilter === 'validated') {
             $query->where('status', 'pending');
@@ -4515,13 +4394,13 @@ class BudgetController extends Controller
         } elseif ($statusFilter === 'paid') {
             $query->where('status', 'paid');
         }
-
+        
         return DataTables::of($query)
             ->addIndexColumn()
             ->addColumn('distribution_no', fn($row) => $row->distribution_no ?? 'N/A')
             ->addColumn('origin', fn($row) => $row->origin ?? 'N/A')
             ->addColumn('concept', fn($row) => $row->concept ?? 'N/A')
-            ->addColumn('distribution_date', function ($row) {
+            ->addColumn('distribution_date', function($row) {
                 return $row->distribution_date ? Carbon::parse($row->distribution_date)->format('d-m-Y') : 'N/A';
             })
             ->addColumn('invoice_no', fn($row) => $row->invoice_no ?? 'N/A')
@@ -4534,7 +4413,7 @@ class BudgetController extends Controller
             ->addColumn('admin_total', fn($row) => $this->money($row->admin_total))
             ->addColumn('total_to_pay', fn($row) => $this->money($row->total_to_pay))
             ->addColumn('balance', fn($row) => $this->money($row->balance))
-            ->addColumn('status', function ($row) {
+            ->addColumn('status', function($row) {
                 $badges = [
                     'pending' => 'warning',
                     'distributed' => 'info',
@@ -4542,50 +4421,50 @@ class BudgetController extends Controller
                     'paid' => 'primary'
                 ];
                 $color = $badges[$row->status] ?? 'secondary';
-                return '<span class="badge bg-' . $color . '">' . ucfirst($row->status) . '</span>';
+                return '<span class="badge bg-'.$color.'">'.ucfirst($row->status).'</span>';
             })
             ->addColumn('created_by_name', fn($row) => $row->creator->name ?? 'N/A')
-            ->addColumn('action', function ($row) use ($statusFilter) {
+            ->addColumn('action', function($row) use ($statusFilter) {
                 $buttons = '<div class="btn-group" role="group">';
-
+                
                 if ($statusFilter === 'validated') {
                     // Checkbox for selection
                     $buttons .= '<input type="checkbox" class="form-check-input distribution-checkbox" 
-                        value="' . $row->id . '" data-concept="' . ($row->concept ?? '') . '">';
+                        value="'.$row->id.'" data-concept="'.($row->concept ?? '').'">';
                 }
-
+                
                 if ($statusFilter === 'distributable' && $row->status === 'distributed') {
                     // Settle button
-                    $buttons .= '<button type="button" class="btn btn-soft-primary btn-sm" onclick="openSettlementModal(' . $row->id . ')" 
+                    $buttons .= '<button type="button" class="btn btn-soft-primary btn-sm" onclick="openSettlementModal('.$row->id.')" 
                         title="Settle Distribution">
                         <iconify-icon icon="solar:money-bag-bold" class="fs-18"></iconify-icon>
                     </button>';
                 }
-
+                
                 if ($statusFilter === 'settled' && $row->status === 'settled') {
                     // View settlement details
-                    $buttons .= '<button type="button" class="btn btn-soft-info btn-sm" onclick="viewSettlement(' . $row->id . ')" 
+                    $buttons .= '<button type="button" class="btn btn-soft-info btn-sm" onclick="viewSettlement('.$row->id.')" 
                         title="View Settlement">
                         <iconify-icon icon="solar:eye-bold" class="fs-18"></iconify-icon>
                     </button>';
                 }
-
+                
                 if (in_array($row->status, ['pending', 'distributed']) && auth()->user()->hasRole(['admin', 'Contador'])) {
                     // Edit button
-                    $buttons .= '<button type="button" class="btn btn-soft-warning btn-sm" onclick="editDistribution(' . $row->id . ')" 
+                    $buttons .= '<button type="button" class="btn btn-soft-warning btn-sm" onclick="editDistribution('.$row->id.')" 
                         title="Edit">
                         <iconify-icon icon="solar:pen-new-square-linear" class="fs-18"></iconify-icon>
                     </button>';
                 }
-
+                
                 if ($row->status === 'pending' && auth()->user()->hasRole(['admin', 'Contador'])) {
                     // Delete button
-                    $buttons .= '<button type="button" class="btn btn-soft-danger btn-sm" onclick="deleteDistribution(' . $row->id . ')" 
+                    $buttons .= '<button type="button" class="btn btn-soft-danger btn-sm" onclick="deleteDistribution('.$row->id.')" 
                         title="Delete">
                         <iconify-icon icon="solar:trash-bin-trash-bold" class="fs-18"></iconify-icon>
                     </button>';
                 }
-
+                
                 $buttons .= '</div>';
                 return $buttons;
             })
@@ -4593,20 +4472,19 @@ class BudgetController extends Controller
             ->make(true);
     }
 
-    public function getValidatedIncomes(Request $request)
-    {
+    public function getValidatedIncomes(Request $request) {
         // Get validated incomes from validation items
         $query = ValidationItem::query()
             ->with(['validation', 'invoice', 'income'])
-            ->whereHas('validation', function ($q) {
+            ->whereHas('validation', function($q) {
                 $q->where('accountant_status', 'approved')
-                    ->where('management_status', 'approved');
+                  ->where('management_status', 'approved');
             })
-            ->where(function ($q) {
+            ->where(function($q) {
                 $q->whereNotNull('item_id');
             })
             ->orderBy('created_at', 'desc');
-
+        
         // Group by concept for totals
         $conceptTotals = clone $query;
         $conceptTotals = $conceptTotals->select(
@@ -4614,11 +4492,11 @@ class BudgetController extends Controller
             DB::raw('SUM(CASE WHEN validated_amount IS NOT NULL THEN validated_amount ELSE original_amount END) as total_amount'),
             DB::raw('COUNT(*) as item_count')
         )->groupBy('concept')->get();
-
+        
         // Return DataTables response
         return DataTables::of($query)
             ->addIndexColumn()
-            ->addColumn('company', function ($row) {
+            ->addColumn('company', function($row) {
                 if ($row->invoice) {
                     return $row->invoice->company ?? 'N/A';
                 } elseif ($row->income) {
@@ -4626,7 +4504,7 @@ class BudgetController extends Controller
                 }
                 return 'N/A';
             })
-            ->addColumn('commercial_name', function ($row) {
+            ->addColumn('commercial_name', function($row) {
                 if ($row->invoice) {
                     return $row->invoice->commercialName ?? 'N/A';
                 } elseif ($row->income) {
@@ -4635,32 +4513,32 @@ class BudgetController extends Controller
                 return 'N/A';
             })
             ->addColumn('concept', fn($row) => $row->concept ?? 'N/A')
-            ->addColumn('invoice_no', function ($row) {
+            ->addColumn('invoice_no', function($row) {
                 if ($row->invoice) {
                     return $row->invoice->invoiceNumber ?? 'N/A';
                 }
                 return 'N/A';
             })
-            ->addColumn('invoice_date', function ($row) {
+            ->addColumn('invoice_date', function($row) {
                 if ($row->invoice) {
                     return $row->invoice->invoiceDate ? Carbon::parse($row->invoice->invoiceDate)->format('d-m-Y') : 'N/A';
                 }
                 return 'N/A';
             })
-            ->addColumn('rc_no', function ($row) {
+            ->addColumn('rc_no', function($row) {
                 if ($row->income) {
                     return $row->income->rc_number ?? 'N/A';
                 }
                 return 'N/A';
             })
-            ->addColumn('rc_date', function ($row) {
+            ->addColumn('rc_date', function($row) {
                 if ($row->income) {
                     return $row->income->rc_date ? Carbon::parse($row->income->rc_date)->format('d-m-Y') : 'N/A';
                 }
                 return 'N/A';
             })
             ->addColumn('base_value', fn($row) => $this->money($row->original_amount))
-            ->addColumn('vat', function ($row) {
+            ->addColumn('vat', function($row) {
                 // Calculate VAT based on invoice if available
                 if ($row->invoice) {
                     $vatAmount = $row->invoice->total - $row->invoice->subTotal;
@@ -4669,62 +4547,61 @@ class BudgetController extends Controller
                 return $this->money(0);
             })
             ->addColumn('amount', fn($row) => $this->money($row->validated_amount ?? $row->original_amount))
-            ->addColumn('checkbox', function ($row) {
+            ->addColumn('checkbox', function($row) {
                 return '<input type="checkbox" class="form-check-input validated-income-checkbox" 
-                    value="' . $row->id . '" data-concept="' . ($row->concept ?? '') . '"
-                    data-amount="' . ($row->validated_amount ?? $row->original_amount) . '">';
+                    value="'.$row->id.'" data-concept="'.($row->concept ?? '').'"
+                    data-amount="'.($row->validated_amount ?? $row->original_amount).'">';
             })
             ->rawColumns(['checkbox'])
             ->with(['concept_totals' => $conceptTotals])
             ->make(true);
     }
 
-    public function createDistributions(Request $request)
-    {
+    public function createDistributions(Request $request) {
         $request->validate([
             'item_ids' => 'required|array',
             'item_ids.*' => 'exists:validation_items,id',
             'distribution_date' => 'required|date',
         ]);
-
+        
         DB::beginTransaction();
-
+        
         try {
             $items = ValidationItem::whereIn('id', $request->item_ids)
                 ->with(['invoice', 'income'])
                 ->get();
-
+            
             // Group by concept for multiple distributions
             $groupedItems = $items->groupBy('concept');
-
+            
             $createdDistributions = [];
-
+            
             foreach ($groupedItems as $concept => $conceptItems) {
                 // Generate distribution number
                 $lastDist = Distribution::orderBy('id', 'desc')->first();
                 $distNo = 'DIST-' . str_pad($lastDist ? $lastDist->id + 1 : 1, 6, '0', STR_PAD_LEFT);
-
+                
                 // Calculate totals
-                $totalAmount = $conceptItems->sum(function ($item) {
+                $totalAmount = $conceptItems->sum(function($item) {
                     return $item->validated_amount ?? $item->original_amount;
                 });
-
+                
                 // For now, use simple calculations - adjust based on your business logic
                 $baseValue = $totalAmount;
-                $vat = $conceptItems->sum(function ($item) {
+                $vat = $conceptItems->sum(function($item) {
                     if ($item->invoice) {
                         return $item->invoice->total - $item->invoice->subTotal;
                     }
                     return 0;
                 });
-
+                
                 $associateSubtotal = $baseValue * 0.80; // Example: 80% to associates
                 $adminSubtotal = $baseValue * 0.20; // Example: 20% admin
                 $adminVat = $vat;
                 $adminTotal = $adminSubtotal + $adminVat;
                 $totalToPay = $associateSubtotal;
                 $balance = $associateSubtotal; // Initially full balance
-
+                
                 $distribution = Distribution::create([
                     'distribution_no' => $distNo,
                     'origin' => 'Validation System',
@@ -4749,17 +4626,18 @@ class BudgetController extends Controller
                         'item_count' => $conceptItems->count(),
                     ],
                 ]);
-
+                
                 $createdDistributions[] = $distribution;
             }
-
+            
             DB::commit();
-
+            
             return response()->json([
                 'status' => true,
                 'message' => 'Distributions created successfully',
                 'distributions' => $createdDistributions,
             ]);
+            
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -4769,8 +4647,7 @@ class BudgetController extends Controller
         }
     }
 
-    public function createSettlement(Request $request)
-    {
+    public function createSettlement(Request $request) {
         try {
             $request->validate([
                 'distribution_id' => 'required|exists:distributions,id',
@@ -4781,7 +4658,7 @@ class BudgetController extends Controller
                 'distribution_formula' => 'nullable|string|max:500',
                 'distribution_type' => 'required|in:ownership,manual',
             ]);
-
+            
             // Additional validation for manual distribution
             if ($request->distribution_type === 'manual') {
                 $request->validate([
@@ -4791,32 +4668,32 @@ class BudgetController extends Controller
                     'associates.*.value' => 'required|numeric|min:0',
                 ]);
             }
-
+            
             DB::beginTransaction();
-
+            
             $distribution = Distribution::findOrFail($request->distribution_id);
-
+            
             // Generate settlement number
             $lastSettlement = Settlement::orderBy('id', 'desc')->first();
             $settlementNo = 'SETT-' . str_pad($lastSettlement ? $lastSettlement->id + 1 : 1, 6, '0', STR_PAD_LEFT);
-
+            
             $totalToDistribute = $distribution->total_to_pay;
             $amountToPay = $totalToDistribute;
-
+            
             $settlementData = [
                 'distribution_type' => $request->distribution_type,
                 'associates' => [],
             ];
-
+            
             $associatesData = [];
-
+            
             if ($request->distribution_type === 'ownership') {
                 throw new \Exception('Ownership distribution type is not yet implemented. Please use manual distribution.');
             } else {
                 // Manual distribution
                 $totalPercentage = 0;
                 $totalFixed = 0;
-
+                
                 foreach ($request->associates as $associate) {
                     if ($associate['type'] === 'percentage') {
                         $totalPercentage += $associate['value'];
@@ -4825,7 +4702,7 @@ class BudgetController extends Controller
                         $totalFixed += $associate['value'];
                         $calculatedAmount = $associate['value'];
                     }
-
+                    
                     $associatesData[] = [
                         'associate_id' => $associate['id'],
                         'percentage' => $associate['type'] === 'percentage' ? $associate['value'] : null,
@@ -4833,7 +4710,7 @@ class BudgetController extends Controller
                         'calculated_amount' => $calculatedAmount,
                     ];
                 }
-
+                
                 // Validate totals
                 $hasPercentages = collect($request->associates)->where('type', 'percentage')->isNotEmpty();
                 if ($hasPercentages) {
@@ -4841,18 +4718,18 @@ class BudgetController extends Controller
                         throw new \Exception('Total percentage must equal 100%. Current total: ' . $totalPercentage . '%');
                     }
                 }
-
+                
                 $totalCalculated = collect($associatesData)->sum('calculated_amount');
                 if (abs($totalCalculated - $totalToDistribute) > 0.01) {
                     throw new \Exception('Total calculated amount ($' . number_format($totalCalculated, 2) . ') must equal amount to distribute ($' . number_format($totalToDistribute, 2) . ')');
                 }
             }
-
+            
             // Check if we have associates data
             if (empty($associatesData)) {
                 throw new \Exception('No associates data available for settlement');
             }
-
+            
             $settlement = Settlement::create([
                 'settlement_no' => $settlementNo,
                 'origin' => $request->origin,
@@ -4870,7 +4747,7 @@ class BudgetController extends Controller
                 'distribution_id' => $distribution->id,
                 'created_by' => auth()->id(),
             ]);
-
+            
             // Attach associates
             foreach ($associatesData as $associateData) {
                 $settlement->associates()->attach($associateData['associate_id'], [
@@ -4880,18 +4757,19 @@ class BudgetController extends Controller
                     'status' => 'pending',
                 ]);
             }
-
+            
             // Update distribution status
             $distribution->update(['status' => 'settled']);
-
+            
             DB::commit();
-
+            
             return response()->json([
                 'status' => true,
                 'message' => 'Settlement created successfully',
                 'settlement_id' => $settlement->id,
                 'settlement_no' => $settlementNo,
             ]);
+            
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
             return response()->json([
@@ -4907,50 +4785,49 @@ class BudgetController extends Controller
         }
     }
 
-    public function getSettlementsData(Request $request)
-    {
+    public function getSettlementsData(Request $request) {
         $query = Settlement::query()
             ->with(['distribution', 'creator', 'associates'])
             ->orderBy('created_at', 'desc');
-
+        
         // Apply filters
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
-
+        
         if ($request->filled('concept')) {
             $query->where('concept', 'like', '%' . $request->concept . '%');
         }
-
+        
         if ($request->filled('period_start')) {
             $query->whereDate('income_month_start', '>=', $request->period_start);
         }
-
+        
         if ($request->filled('period_end')) {
             $query->whereDate('income_month_end', '<=', $request->period_end);
         }
-
+        
         // Add payment status filter if provided
         if ($request->filled('payment_status')) {
             $query->where('status', $request->payment_status);
         }
-
+        
         // Add associate filter if provided
         if ($request->filled('associate_id')) {
-            $query->whereHas('associates', function ($q) use ($request) {
+            $query->whereHas('associates', function($q) use ($request) {
                 $q->where('users.id', $request->associate_id);
             });
         }
-
+        
         return DataTables::of($query)
             ->addIndexColumn()
             ->addColumn('settlement_no', fn($row) => $row->settlement_no ?? 'N/A')
             ->addColumn('origin', fn($row) => $row->origin ?? 'N/A')
             ->addColumn('concept', fn($row) => $row->concept ?? 'N/A')
-            ->addColumn('income_month', function ($row) {
+            ->addColumn('income_month', function($row) {
                 if ($row->income_month_start && $row->income_month_end) {
-                    return Carbon::parse($row->income_month_start)->format('M Y') . ' - ' .
-                        Carbon::parse($row->income_month_end)->format('M Y');
+                    return Carbon::parse($row->income_month_start)->format('M Y') . ' - ' . 
+                           Carbon::parse($row->income_month_end)->format('M Y');
                 } elseif ($row->income_month_start) {
                     return Carbon::parse($row->income_month_start)->format('M Y');
                 }
@@ -4960,67 +4837,66 @@ class BudgetController extends Controller
             ->addColumn('distribution_formula', fn($row) => $row->distribution_formula ?? 'N/A')
             ->addColumn('total_to_distribute', fn($row) => $this->money($row->total_to_distribute))
             ->addColumn('amount_to_pay', fn($row) => $this->money($row->amount_to_pay))
-            ->addColumn('distribution_type', function ($row) {
+            ->addColumn('distribution_type', function($row) {
                 $badges = [
                     'ownership' => 'primary',
                     'manual' => 'info'
                 ];
                 $color = $badges[$row->distribution_type] ?? 'secondary';
-                return '<span class="badge bg-' . $color . '">' . ucfirst($row->distribution_type) . '</span>';
+                return '<span class="badge bg-'.$color.'">'.ucfirst($row->distribution_type).'</span>';
             })
-            ->addColumn('status', function ($row) {
+            ->addColumn('status', function($row) {
                 $badges = [
                     'pending' => 'warning',
                     'settled' => 'info',
                     'paid' => 'success'
                 ];
                 $color = $badges[$row->status] ?? 'secondary';
-                return '<span class="badge bg-' . $color . '">' . ucfirst($row->status) . '</span>';
+                return '<span class="badge bg-'.$color.'">'.ucfirst($row->status).'</span>';
             })
-            ->addColumn('action', function ($row) {
+            ->addColumn('action', function($row) {
                 $buttons = '<div class="btn-group" role="group">';
-
+                
                 // View details
-                $buttons .= '<button type="button" class="btn btn-soft-info btn-sm" onclick="viewSettlementDetails(' . $row->id . ')" 
+                $buttons .= '<button type="button" class="btn btn-soft-info btn-sm" onclick="viewSettlementDetails('.$row->id.')" 
                     title="View Details">
                     <iconify-icon icon="solar:eye-bold" class="fs-18"></iconify-icon>
                 </button>';
-
+                
                 // View associates
-                $buttons .= '<button type="button" class="btn btn-soft-primary btn-sm" onclick="viewSettlementAssociates(' . $row->id . ')" 
+                $buttons .= '<button type="button" class="btn btn-soft-primary btn-sm" onclick="viewSettlementAssociates('.$row->id.')" 
                     title="View Associates">
                     <iconify-icon icon="solar:users-group-two-rounded-bold" class="fs-18"></iconify-icon>
                 </button>';
-
+                
                 // Only show "Mark as Paid" button for settled settlements
                 if ($row->status === 'settled' && auth()->user()->hasRole(['admin', 'Contador'])) {
-                    $buttons .= '<button type="button" class="btn btn-soft-success btn-sm" onclick="markSettlementPaid(' . $row->id . ')" 
+                    $buttons .= '<button type="button" class="btn btn-soft-success btn-sm" onclick="markSettlementPaid('.$row->id.')" 
                         title="Mark as Paid">
                         <iconify-icon icon="solar:check-circle-bold" class="fs-18"></iconify-icon>
                     </button>';
                 }
-
+                
                 // Download report (available for both settled and paid)
-                $buttons .= '<button type="button" class="btn btn-soft-secondary btn-sm" onclick="downloadSettlementReport(' . $row->id . ')" 
+                $buttons .= '<button type="button" class="btn btn-soft-secondary btn-sm" onclick="downloadSettlementReport('.$row->id.')" 
                     title="Download Report">
                     <iconify-icon icon="solar:download-bold" class="fs-18"></iconify-icon>
                 </button>';
-
+                
                 $buttons .= '</div>';
                 return $buttons;
             })
             ->rawColumns(['distribution_type', 'status', 'action'])
             ->make(true);
     }
-
-    public function viewSettlement($id)
-    {
+    
+    public function viewSettlement($id) {
         $settlement = Settlement::with(['distribution', 'creator', 'associates'])->findOrFail($id);
-
+        
         return response()->json([
             'status' => true,
             'settlement' => $settlement,
-            'associates' => $settlement->associates->map(function ($associate) {
+            'associates' => $settlement->associates->map(function($associate) {
                 return [
                     'id' => $associate->id,
                     'name' => $associate->name,
@@ -5035,23 +4911,22 @@ class BudgetController extends Controller
         ]);
     }
 
-    public function markSettlementPaid(Request $request, $id)
-    {
+    public function markSettlementPaid(Request $request, $id) {
         $request->validate([
             'paid_date' => 'required|date',
         ]);
-
+        
         DB::beginTransaction();
-
+        
         try {
             $settlement = Settlement::findOrFail($id);
-
+            
             // Update settlement
             $settlement->update([
                 'status' => 'paid',
                 'paid_date' => $request->paid_date,
             ]);
-
+            
             // Update all associates
             $settlement->associates()->updateExistingPivot(
                 $settlement->associates->pluck('id'),
@@ -5060,18 +4935,19 @@ class BudgetController extends Controller
                     'paid_date' => $request->paid_date,
                 ]
             );
-
+            
             // Update distribution status
             if ($settlement->distribution) {
                 $settlement->distribution->update(['status' => 'paid']);
             }
-
+            
             DB::commit();
-
+            
             return response()->json([
                 'status' => true,
                 'message' => 'Settlement marked as paid successfully',
             ]);
+            
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -5081,35 +4957,33 @@ class BudgetController extends Controller
         }
     }
 
-    public function getAssociatesForSettlement()
-    {
+    public function getAssociatesForSettlement() {
 
         $roleIds = AssignSettlement::pluck('role_id')->toArray();
         if (empty($roleIds)) {
             return response()->json([]);
         }
-
+        
         $roleNames = \Spatie\Permission\Models\Role::whereIn('id', $roleIds)->pluck('name')->toArray();
         $associates = User::role($roleNames)->get(['id', 'name', 'email']);
-
+        
         return response()->json($associates);
     }
 
-    public function downloadSettlementReport($id)
-    {
+    public function downloadSettlementReport($id) {
         $settlement = Settlement::with(['distribution', 'associates'])->findOrFail($id);
-
+        
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Settlement Report');
-
+        
         // Header styling
         $headerStyle = [
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '4472C4']],
             'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
         ];
-
+        
         // Settlement Details
         $sheet->setCellValue('A1', 'Settlement Report');
         $sheet->mergeCells('A1:F1');
@@ -5117,7 +4991,7 @@ class BudgetController extends Controller
             'font' => ['bold' => true, 'size' => 16],
             'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
         ]);
-
+        
         $details = [
             ['Settlement No:', $settlement->settlement_no],
             ['Date:', $settlement->created_at->format('d-m-Y')],
@@ -5129,14 +5003,14 @@ class BudgetController extends Controller
             ['Amount to Pay:', $this->money($settlement->amount_to_pay)],
             ['Status:', ucfirst($settlement->status)],
         ];
-
+        
         $row = 3;
         foreach ($details as $detail) {
             $sheet->setCellValue('A' . $row, $detail[0]);
             $sheet->setCellValue('B' . $row, $detail[1]);
             $row++;
         }
-
+        
         // Associates Table
         $row += 2;
         $sheet->setCellValue('A' . $row, 'Associates Distribution');
@@ -5145,7 +5019,7 @@ class BudgetController extends Controller
             'font' => ['bold' => true, 'size' => 14],
             'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
         ]);
-
+        
         $row++;
         $associateHeaders = ['Associate', 'Email', 'Percentage', 'Fixed Amount', 'Calculated Amount', 'Status'];
         $col = 'A';
@@ -5154,7 +5028,7 @@ class BudgetController extends Controller
             $sheet->getStyle($col . $row)->applyFromArray($headerStyle);
             $col++;
         }
-
+        
         $row++;
         foreach ($settlement->associates as $associate) {
             $sheet->setCellValue('A' . $row, $associate->name);
@@ -5165,37 +5039,35 @@ class BudgetController extends Controller
             $sheet->setCellValue('F' . $row, ucfirst($associate->pivot->status));
             $row++;
         }
-
+        
         // Auto-size columns
         foreach (range('A', 'F') as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
-
+        
         $filename = 'Settlement_Report_' . $settlement->settlement_no . '.xlsx';
-
+        
         $writer = new Xlsx($spreadsheet);
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
-
+        
         $writer->save('php://output');
         exit;
     }
 
-    public function getDistribution($id)
-    {
+    public function getDistribution($id) {
         $distribution = Distribution::with(['validation', 'income', 'creator'])->findOrFail($id);
-
+        
         return response()->json([
             'status' => true,
             'distribution' => $distribution
         ]);
     }
 
-    public function updateDistribution(Request $request, $id)
-    {
+    public function updateDistribution(Request $request, $id) {
         $distribution = Distribution::findOrFail($id);
-
+        
         // Check permissions
         if (!auth()->user()->hasRole(['admin', 'Contador'])) {
             return response()->json([
@@ -5203,7 +5075,7 @@ class BudgetController extends Controller
                 'message' => 'You are not authorized to edit distributions'
             ], 403);
         }
-
+        
         $request->validate([
             'origin' => 'nullable|string|max:255',
             'concept' => 'nullable|string|max:255',
@@ -5217,19 +5089,18 @@ class BudgetController extends Controller
             'total_to_pay' => 'nullable|numeric|min:0',
             'balance' => 'nullable|numeric|min:0',
         ]);
-
+        
         $distribution->update($request->all());
-
+        
         return response()->json([
             'status' => true,
             'message' => 'Distribution updated successfully'
         ]);
     }
 
-    public function deleteDistribution($id)
-    {
+    public function deleteDistribution($id) {
         $distribution = Distribution::findOrFail($id);
-
+        
         // Check permissions
         if (!auth()->user()->hasRole(['admin', 'Contador'])) {
             return response()->json([
@@ -5237,7 +5108,7 @@ class BudgetController extends Controller
                 'message' => 'You are not authorized to delete distributions'
             ], 403);
         }
-
+        
         // Only allow deletion of pending distributions
         if ($distribution->status !== 'pending') {
             return response()->json([
@@ -5245,9 +5116,9 @@ class BudgetController extends Controller
                 'message' => 'Cannot delete distributions that are not in pending status'
             ], 422);
         }
-
+        
         $distribution->delete();
-
+        
         return response()->json([
             'status' => true,
             'message' => 'Distribution deleted successfully'
@@ -5256,65 +5127,64 @@ class BudgetController extends Controller
 
 
     /** Portfolio (aging) data **/
-    public function getPortfolioData(Request $request)
-    {
+    public function getPortfolioData(Request $request) {
         $periodMonth = $request->get('period_month', date('m'));
         $periodYear = $request->get('period_year', date('Y'));
         $clientFilter = $request->get('client_filter');
         $agingFilter = $request->get('aging_filter'); // '1-30', '31-90', '90+'
-
+        
         // Calculate period end date
         $periodEndDate = Carbon::create($periodYear, $periodMonth, 1)->endOfMonth();
-
+        
         // Get all unpaid/partially paid invoices up to period end
         $query = RegisterInvoice::query()
             ->with(['budget.client', 'cashReceipts', 'creditNotes'])
             ->whereDate('invoiceDate', '<=', $periodEndDate)
-            ->where(function ($q) {
+            ->where(function($q) {
                 // Not fully paid and not canceled
                 $q->whereDoesntHave('creditNotes')
-                    ->orWhereHas('creditNotes', function ($cn) {
-                        $cn->whereNull('cn_number');
-                    });
+                  ->orWhereHas('creditNotes', function($cn) {
+                      $cn->whereNull('cn_number');
+                  });
             });
-
+        
         // Client filter
         if ($clientFilter) {
             $query->where('commercialName', 'like', '%' . $clientFilter . '%');
         }
-
+        
         $invoices = $query->orderBy('commercialName')->orderBy('invoiceDate')->get();
-
+        
         // Process invoices to calculate aging and balances
         $portfolioData = [];
-
+        
         foreach ($invoices as $invoice) {
             // Calculate total paid
             $totalPaid = (float) $invoice->cashReceipts->sum('amount');
-
+            
             // Calculate credit notes
             $creditNoteTotal = 0;
             if ($invoice->creditNotes->isNotEmpty()) {
                 $creditNoteTotal = (float) $invoice->creditNotes->sum('total');
             }
-
+            
             // Calculate balance
             $balance = (float) $invoice->total - $totalPaid - $creditNoteTotal;
-
+            
             // Skip if fully paid
             if ($balance <= 0.01) {
                 continue;
             }
-
+            
             // Calculate aging (days from invoice date to period end)
             $invoiceDate = Carbon::parse($invoice->invoiceDate);
             $daysOld = $invoiceDate->diffInDays($periodEndDate);
-
+            
             // Categorize by aging
             $aging_1_30 = 0;
             $aging_31_90 = 0;
             $aging_90_plus = 0;
-
+            
             if ($daysOld <= 30) {
                 $aging_1_30 = $balance;
             } elseif ($daysOld <= 90) {
@@ -5322,21 +5192,21 @@ class BudgetController extends Controller
             } else {
                 $aging_90_plus = $balance;
             }
-
+            
             // Apply aging filter if set
             if ($agingFilter) {
                 $matchesFilter = false;
                 if ($agingFilter === '1-30' && $aging_1_30 > 0) $matchesFilter = true;
                 if ($agingFilter === '31-90' && $aging_31_90 > 0) $matchesFilter = true;
                 if ($agingFilter === '90+' && $aging_90_plus > 0) $matchesFilter = true;
-
+                
                 if (!$matchesFilter) continue;
             }
-
+            
             // Get client ID
             $clientId = $invoice->commercialID;
             $clientName = $invoice->commercialName;
-
+            
             // Get or create client entry
             if (!isset($portfolioData[$clientId])) {
                 $portfolioData[$clientId] = [
@@ -5351,13 +5221,13 @@ class BudgetController extends Controller
                     ]
                 ];
             }
-
+            
             // Get comment for this invoice/client/period
             $comment = PortfolioComment::where('client_id', $clientId)
                 ->where('invoice_id', $invoice->id)
                 ->forPeriod($periodMonth, $periodYear)
                 ->first();
-
+            
             // Add invoice data
             $portfolioData[$clientId]['invoices'][] = [
                 'invoice_id' => $invoice->id,
@@ -5381,19 +5251,19 @@ class BudgetController extends Controller
                     'can_approve' => $comment->canBeApproved(auth()->user())
                 ] : null
             ];
-
+            
             // Update totals
             $portfolioData[$clientId]['totals']['1_30'] += $aging_1_30;
             $portfolioData[$clientId]['totals']['31_90'] += $aging_31_90;
             $portfolioData[$clientId]['totals']['90_plus'] += $aging_90_plus;
             $portfolioData[$clientId]['totals']['total'] += $balance;
         }
-
+        
         // Sort by client name
-        usort($portfolioData, function ($a, $b) {
+        usort($portfolioData, function($a, $b) {
             return strcmp($a['client_name'], $b['client_name']);
         });
-
+        
         // Calculate grand totals
         $grandTotals = [
             '1_30' => 0,
@@ -5401,14 +5271,14 @@ class BudgetController extends Controller
             '90_plus' => 0,
             'total' => 0
         ];
-
+        
         foreach ($portfolioData as $client) {
             $grandTotals['1_30'] += $client['totals']['1_30'];
             $grandTotals['31_90'] += $client['totals']['31_90'];
             $grandTotals['90_plus'] += $client['totals']['90_plus'];
             $grandTotals['total'] += $client['totals']['total'];
         }
-
+        
         return response()->json([
             'status' => true,
             'data' => array_values($portfolioData),
@@ -5421,8 +5291,7 @@ class BudgetController extends Controller
         ]);
     }
 
-    public function storePortfolioComment(Request $request)
-    {
+    public function storePortfolioComment(Request $request) {
         $request->validate([
             'client_id' => 'required|exists:clients,id',
             'invoice_id' => 'required|exists:register_invoice,id',
@@ -5430,13 +5299,13 @@ class BudgetController extends Controller
             'period_year' => 'required|numeric|min:2000',
             'comment' => 'required|string|max:1000'
         ]);
-
+        
         // Check if comment already exists for this combination
         $existing = PortfolioComment::where('client_id', $request->client_id)
             ->where('invoice_id', $request->invoice_id)
             ->forPeriod($request->period_month, $request->period_year)
             ->first();
-
+        
         if ($existing) {
             if ($existing->status === 'approved') {
                 return response()->json([
@@ -5444,20 +5313,20 @@ class BudgetController extends Controller
                     'message' => 'Cannot modify approved comments'
                 ], 422);
             }
-
+            
             // Update existing pending comment
             $existing->update([
                 'comment' => $request->comment,
                 'created_by' => auth()->id()
             ]);
-
+            
             return response()->json([
                 'status' => true,
                 'message' => 'Comment updated successfully',
                 'comment' => $existing
             ]);
         }
-
+        
         // Create new comment
         $comment = PortfolioComment::create([
             'client_id' => $request->client_id,
@@ -5468,7 +5337,7 @@ class BudgetController extends Controller
             'status' => 'pending',
             'created_by' => auth()->id()
         ]);
-
+        
         return response()->json([
             'status' => true,
             'message' => 'Comment added successfully',
@@ -5476,22 +5345,21 @@ class BudgetController extends Controller
         ]);
     }
 
-    public function approvePortfolioComment(Request $request, $id)
-    {
+    public function approvePortfolioComment(Request $request, $id) {
         $comment = PortfolioComment::findOrFail($id);
-
+        
         if (!$comment->canBeApproved(auth()->user())) {
             return response()->json([
                 'status' => false,
                 'message' => 'You are not authorized to approve this comment'
             ], 403);
         }
-
+        
         $request->validate([
             'action' => 'required|in:approve,reject',
             'rejection_reason' => 'required_if:action,reject|nullable|string|max:500'
         ]);
-
+        
         if ($request->action === 'approve') {
             $comment->update([
                 'status' => 'approved',
@@ -5499,7 +5367,7 @@ class BudgetController extends Controller
                 'approved_at' => now(),
                 'rejection_reason' => null
             ]);
-
+            
             $message = 'Comment approved successfully';
         } else {
             $comment->update([
@@ -5508,10 +5376,10 @@ class BudgetController extends Controller
                 'approved_at' => now(),
                 'rejection_reason' => $request->rejection_reason
             ]);
-
+            
             $message = 'Comment rejected';
         }
-
+        
         return response()->json([
             'status' => true,
             'message' => $message,
@@ -5519,53 +5387,51 @@ class BudgetController extends Controller
         ]);
     }
 
-    public function deletePortfolioComment($id)
-    {
+    public function deletePortfolioComment($id) {
         $comment = PortfolioComment::findOrFail($id);
-
+        
         if (!$comment->canBeModified()) {
             return response()->json([
                 'status' => false,
                 'message' => 'Cannot delete approved or rejected comments'
             ], 422);
         }
-
+        
         if ($comment->created_by !== auth()->id() && !auth()->user()->hasRole(['admin', 'Admin'])) {
             return response()->json([
                 'status' => false,
                 'message' => 'You can only delete your own comments'
             ], 403);
         }
-
+        
         $comment->delete();
-
+        
         return response()->json([
             'status' => true,
             'message' => 'Comment deleted successfully'
         ]);
     }
 
-    public function exportPortfolioReport(Request $request)
-    {
+    public function exportPortfolioReport(Request $request) {
         $periodMonth = $request->get('period_month', date('m'));
         $periodYear = $request->get('period_year', date('Y'));
-
+        
         // Get portfolio data
         $response = $this->getPortfolioData($request);
         $portfolioData = $response->getData()->data;
         $grandTotals = $response->getData()->grand_totals;
-
+        
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Portfolio Aging');
-
+        
         // Header styling
         $headerStyle = [
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '4472C4']],
             'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
         ];
-
+        
         // Title
         $sheet->setCellValue('A1', 'Portfolio (Aging) Report');
         $sheet->mergeCells('A1:H1');
@@ -5573,12 +5439,12 @@ class BudgetController extends Controller
             'font' => ['bold' => true, 'size' => 16],
             'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
         ]);
-
+        
         // Period info
         $periodLabel = date('F Y', mktime(0, 0, 0, $periodMonth, 1, $periodYear));
         $sheet->setCellValue('A2', 'Period: ' . $periodLabel);
         $sheet->mergeCells('A2:H2');
-
+        
         // Headers
         $row = 4;
         $headers = ['Company', 'Inv. No.', 'Inv. Date', '1-30 days', '31-90 days', '90+ days', 'Total Balance', 'Comment'];
@@ -5589,9 +5455,9 @@ class BudgetController extends Controller
             $sheet->getColumnDimension($col)->setAutoSize(true);
             $col++;
         }
-
+        
         $row++;
-
+        
         // Data
         foreach ($portfolioData as $client) {
             foreach ($client->invoices as $invoice) {
@@ -5603,29 +5469,29 @@ class BudgetController extends Controller
                 $sheet->setCellValue('F' . $row, $invoice->aging_90_plus);
                 $sheet->setCellValue('G' . $row, $invoice->balance);
                 $sheet->setCellValue('H' . $row, $invoice->comment ? $invoice->comment->text : '');
-
+                
                 // Format numbers
                 $sheet->getStyle('D' . $row . ':G' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
-
+                
                 $row++;
             }
-
+            
             // Client subtotal
             $sheet->setCellValue('A' . $row, 'Subtotal: ' . $client->client_name);
             $sheet->setCellValue('D' . $row, $client->totals->{'1_30'});
             $sheet->setCellValue('E' . $row, $client->totals->{'31_90'});
             $sheet->setCellValue('F' . $row, $client->totals->{'90_plus'});
             $sheet->setCellValue('G' . $row, $client->totals->total);
-
+            
             $sheet->getStyle('A' . $row . ':H' . $row)->applyFromArray([
                 'font' => ['bold' => true],
                 'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => 'E7E6E6']]
             ]);
             $sheet->getStyle('D' . $row . ':G' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
-
+            
             $row++;
         }
-
+        
         // Grand total
         $row++;
         $sheet->setCellValue('A' . $row, 'GRAND TOTAL');
@@ -5633,21 +5499,22 @@ class BudgetController extends Controller
         $sheet->setCellValue('E' . $row, $grandTotals->{'31_90'});
         $sheet->setCellValue('F' . $row, $grandTotals->{'90_plus'});
         $sheet->setCellValue('G' . $row, $grandTotals->total);
-
+        
         $sheet->getStyle('A' . $row . ':H' . $row)->applyFromArray([
             'font' => ['bold' => true, 'size' => 12],
             'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FFD966']]
         ]);
         $sheet->getStyle('D' . $row . ':G' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
-
+        
         $filename = 'Portfolio_Aging_' . $periodLabel . '.xlsx';
-
+        
         $writer = new Xlsx($spreadsheet);
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
-
+        
         $writer->save('php://output');
         exit;
     }
 }
+
