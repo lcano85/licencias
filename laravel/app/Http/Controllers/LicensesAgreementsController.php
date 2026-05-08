@@ -44,6 +44,11 @@ class LicensesAgreementsController extends Controller {
 
     public function getAjaxData(Request $request){
         if ($request->ajax()) {
+            $this->syncExpiredLicenses();
+
+            $today = Carbon::today()->toDateString();
+            $soonLimit = Carbon::today()->addDays(30)->toDateString();
+
             $data = LicensesAgreements::select(
                 'id', 'commercialID', 'commercialName', 'userType', 'licensedConcept',
                 'licensedEnvironment', 'startDate', 'endDate', 'monthlyValue', 'annualValue',
@@ -78,7 +83,34 @@ class LicensesAgreementsController extends Controller {
                 $data->where('origin', $request->originFilter);
             }
             if ($request->filled('statusFilter')) {
-                $data->where('status', $request->statusFilter);
+                if ($request->statusFilter == 1) {
+                    $data->where('status', 1)
+                        ->where(function ($q) use ($today) {
+                            $q->whereNull('endDate')
+                                ->orWhereDate('endDate', '>=', $today);
+                        });
+                } elseif ($request->statusFilter == 4) {
+                    $data->where(function ($q) use ($today) {
+                        $q->where('status', 4)
+                            ->orWhere(function ($subQ) use ($today) {
+                                $subQ->where('status', 1)
+                                    ->whereDate('endDate', '<', $today);
+                            });
+                    });
+                } else {
+                    $data->where('status', $request->statusFilter);
+                }
+            }
+            if ($request->filled('expirationFilter')) {
+                if ($request->expirationFilter === 'expired') {
+                    $data->whereDate('endDate', '<', $today);
+                } elseif ($request->expirationFilter === 'valid') {
+                    $data->whereDate('endDate', '>=', $today);
+                } elseif ($request->expirationFilter === 'expiring_30') {
+                    $data->whereBetween(DB::raw('DATE(endDate)'), [$today, $soonLimit]);
+                } elseif ($request->expirationFilter === 'no_end_date') {
+                    $data->whereNull('endDate');
+                }
             }
 
             return DataTables::of($data)
@@ -102,7 +134,11 @@ class LicensesAgreementsController extends Controller {
                     return $row->subcategory ?: __('N/A');
                 })
                 ->addColumn('status', function ($row) {
-                    if ($row->status == 1) {
+                    $isExpiredByDate = !empty($row->endDate) && Carbon::parse($row->endDate)->lt(Carbon::today());
+
+                    if ($row->status == 1 && $isExpiredByDate) {
+                        return '<span class="badge bg-secondary">' . __('Expired') . '</span>';
+                    } elseif ($row->status == 1) {
                         return '<span class="badge bg-success">' . __('Active') . '</span>';
                     } elseif ($row->status == 2) {
                         return '<span class="badge bg-danger">' . __('Canceled') . '</span>';
@@ -180,6 +216,12 @@ class LicensesAgreementsController extends Controller {
                 ->make(true);
         }
         return response()->json(['error' => __('Unauthorized')], 403);
+    }
+
+    private function syncExpiredLicenses(): void {
+        LicensesAgreements::where('status', 1)
+            ->whereDate('endDate', '<', Carbon::today())
+            ->update(['status' => 4]);
     }
 
     public function create() {
