@@ -232,21 +232,37 @@ class LicensesAgreementsController extends Controller {
 
         $monthlyValue = $this->parseCurrencyValue($request->monthlyValue);
         $annualValue  = $this->parseCurrencyValue($request->annualValue);
-
-        // Dates
-        $start = Carbon::create($request->begin_year, $request->begin_month, 1);
-        $end   = Carbon::create(
-            $request->finish_year ?? $request->begin_year,
-            $request->finish_month ?? $request->begin_month,
-            1
+        $billingStart = Carbon::create((int) $request->begin_year, (int) $request->begin_month, 1);
+        $monthsTotal = $this->calculateBillingMonths(
+            $request->billing_frequency,
+            (int) $request->begin_month,
+            (int) $request->begin_year,
+            $request->finish_month ? (int) $request->finish_month : null,
+            $request->finish_year ? (int) $request->finish_year : null
+        );
+        $billingEnd = $this->resolveBillingEnd(
+            (int) $request->begin_month,
+            (int) $request->begin_year,
+            $request->finish_month ? (int) $request->finish_month : null,
+            $request->finish_year ? (int) $request->finish_year : null,
+            $monthsTotal
         );
 
-        // Months count
-        $monthsTotal = $start->diffInMonths($end) + 1;
+        $duplicate = $this->findOverlappingLicense((int) $request->commercialName, $billingStart, $billingEnd);
+        if ($duplicate) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors([
+                    'commercialName' => $this->duplicateLicenseMessage($duplicate, $billingStart, $billingEnd),
+                ]);
+        }
 
-        // Monthly calculation
         $subTotal = $monthlyValue ?: ($annualValue ? round($annualValue / $monthsTotal, 2) : 0);
-        $vatPercent = $request->vat;
+        if ($annualValue <= 0 && $subTotal > 0) {
+            $annualValue = round($subTotal * $monthsTotal, 2);
+        }
+
+        $vatPercent = $this->parsePercentValue($request->vat ?? 0);
         $vatAmount  = $subTotal * ($vatPercent / 100);
         $total      = $subTotal + $vatAmount;
 
@@ -262,15 +278,15 @@ class LicensesAgreementsController extends Controller {
         $licenses->billing_frequency = $request->billing_frequency;
         $licenses->begin_month = $request->begin_month;
         $licenses->begin_year  = $request->begin_year;
-        $licenses->finish_month = $request->finish_month;
-        $licenses->finish_year  = $request->finish_year;
-        $licenses->monthlyValue = $request->monthlyValue;
-        $licenses->annualValue  = $request->annualValue;
+        $licenses->finish_month = $billingEnd->month;
+        $licenses->finish_year  = $billingEnd->year;
+        $licenses->monthlyValue = $this->formatCurrencyValue($subTotal);
+        $licenses->annualValue  = $this->formatCurrencyValue($annualValue);
         $licenses->status       = $request->status;
         $licenses->category     = $request->category;
         $licenses->subcategory  = $request->subcategory;
         $licenses->origin       = $request->origin;
-        $licenses->vat  = $request->vat;
+        $licenses->vat  = $vatPercent;
         $licenses->month_total_value  = $total;
 
         if ($licenses->save()) {
@@ -288,20 +304,28 @@ class LicensesAgreementsController extends Controller {
         $monthlyValue = $this->parseCurrencyValue($license->monthlyValue);
         $annualValue  = $this->parseCurrencyValue($license->annualValue);
 
-        // Dates
         $start = Carbon::create($license->begin_year, $license->begin_month, 1);
-        $end   = Carbon::create(
-            $license->finish_year ?? $license->begin_year,
-            $license->finish_month ?? $license->begin_month,
-            1
+        $monthsTotal = $this->calculateBillingMonths(
+            $license->billing_frequency,
+            (int) $license->begin_month,
+            (int) $license->begin_year,
+            $license->finish_month ? (int) $license->finish_month : null,
+            $license->finish_year ? (int) $license->finish_year : null
         );
-
-        // Months count
-        $monthsTotal = $start->diffInMonths($end) + 1;
+        $end = $this->resolveBillingEnd(
+            (int) $license->begin_month,
+            (int) $license->begin_year,
+            $license->finish_month ? (int) $license->finish_month : null,
+            $license->finish_year ? (int) $license->finish_year : null,
+            $monthsTotal
+        );
 
         // Monthly calculation
         $subTotal = $monthlyValue ?: ($annualValue ? round($annualValue / $monthsTotal, 2) : 0);
-        $vatPercent = isset($license->vat) ? $license->vat : 12;
+        if ($annualValue <= 0 && $subTotal > 0) {
+            $annualValue = round($subTotal * $monthsTotal, 2);
+        }
+        $vatPercent = isset($license->vat) ? $this->parsePercentValue($license->vat) : 12;
         $vatAmount  = $subTotal * ($vatPercent / 100);
         $total      = $subTotal + $vatAmount;
 
@@ -351,8 +375,8 @@ class LicensesAgreementsController extends Controller {
             $budget->billing_frequency = $license->billing_frequency;
             $budget->begin_month       = $license->begin_month;
             $budget->begin_year        = $license->begin_year;
-            $budget->finish_month      = $license->finish_month;
-            $budget->finish_year       = $license->finish_year;
+            $budget->finish_month      = $end->month;
+            $budget->finish_year       = $end->year;
 
             // ðŸ”¥ CURRENT MONTH
             $budget->budget_month = $start->month;
@@ -376,6 +400,101 @@ class LicensesAgreementsController extends Controller {
         }
     }
 
+
+    private function calculateBillingMonths($frequency, int $beginMonth, int $beginYear, ?int $finishMonth, ?int $finishYear): int {
+        $start = Carbon::create($beginYear, $beginMonth, 1);
+
+        if ($finishMonth && $finishYear) {
+            $end = Carbon::create($finishYear, $finishMonth, 1);
+            return max(1, $start->diffInMonths($end) + 1);
+        }
+
+        $frequency = strtolower(trim((string) $frequency));
+        return match ($frequency) {
+            'quarterly', '2' => 3,
+            'annual', '3' => 12,
+            'one-time payment', '4' => 1,
+            default => 12,
+        };
+    }
+
+    private function resolveBillingEnd(int $beginMonth, int $beginYear, ?int $finishMonth, ?int $finishYear, int $monthsTotal): Carbon {
+        if ($finishMonth && $finishYear) {
+            return Carbon::create($finishYear, $finishMonth, 1);
+        }
+
+        return Carbon::create($beginYear, $beginMonth, 1)->addMonths(max(1, $monthsTotal) - 1);
+    }
+
+    private function findOverlappingLicense(int $clientId, Carbon $newStart, Carbon $newEnd, ?int $ignoreId = null): ?LicensesAgreements {
+        $query = LicensesAgreements::where('commercialID', $clientId)
+            ->whereNotNull('begin_month')
+            ->whereNotNull('begin_year');
+
+        if ($ignoreId) {
+            $query->where('id', '!=', $ignoreId);
+        }
+
+        foreach ($query->get() as $license) {
+            $existingStart = Carbon::create((int) $license->begin_year, (int) $license->begin_month, 1);
+            $existingMonths = $this->calculateBillingMonths(
+                $license->billing_frequency,
+                (int) $license->begin_month,
+                (int) $license->begin_year,
+                $license->finish_month ? (int) $license->finish_month : null,
+                $license->finish_year ? (int) $license->finish_year : null
+            );
+            $existingEnd = $this->resolveBillingEnd(
+                (int) $license->begin_month,
+                (int) $license->begin_year,
+                $license->finish_month ? (int) $license->finish_month : null,
+                $license->finish_year ? (int) $license->finish_year : null,
+                $existingMonths
+            );
+
+            if ($existingStart->lte($newEnd) && $existingEnd->gte($newStart)) {
+                return $license;
+            }
+        }
+
+        return null;
+    }
+
+    private function duplicateLicenseMessage(LicensesAgreements $license, Carbon $newStart, Carbon $newEnd): string {
+        $existingStart = Carbon::create((int) $license->begin_year, (int) $license->begin_month, 1);
+        $existingMonths = $this->calculateBillingMonths(
+            $license->billing_frequency,
+            (int) $license->begin_month,
+            (int) $license->begin_year,
+            $license->finish_month ? (int) $license->finish_month : null,
+            $license->finish_year ? (int) $license->finish_year : null
+        );
+        $existingEnd = $this->resolveBillingEnd(
+            (int) $license->begin_month,
+            (int) $license->begin_year,
+            $license->finish_month ? (int) $license->finish_month : null,
+            $license->finish_year ? (int) $license->finish_year : null,
+            $existingMonths
+        );
+
+        return sprintf(
+            'Este cliente ya tiene la licencia #%d para el periodo %s a %s. El periodo solicitado %s a %s se cruza con esa licencia.',
+            $license->id,
+            $existingStart->format('F Y'),
+            $existingEnd->format('F Y'),
+            $newStart->format('F Y'),
+            $newEnd->format('F Y')
+        );
+    }
+
+    private function parsePercentValue($value) {
+        if ($value === null || $value === '') return 0;
+        return (float) preg_replace('/[^0-9,.]/', '', str_replace(',', '.', (string) $value));
+    }
+
+    private function formatCurrencyValue($value) {
+        return number_format((float) $value, 2, ',', '.');
+    }
 
     private function parseCurrencyValue($value) {
         if (empty($value)) return 0;
@@ -415,6 +534,9 @@ class LicensesAgreementsController extends Controller {
             'licensedEnvironment' => 'required',
             'startDate'           => 'required|date',
             'endDate'             => 'required|date|after:startDate',
+            'billing_frequency'   => 'required',
+            'begin_month'         => 'required|integer|min:1|max:12',
+            'begin_year'          => 'required|integer|min:2000|max:2100',
         ]);
         
         $clientName = Clients::where('id', $request->commercialName)->first();
@@ -434,11 +556,43 @@ class LicensesAgreementsController extends Controller {
         $licenses->billing_frequency = $request->billing_frequency;
         $licenses->begin_month = $request->begin_month;
         $licenses->begin_year  = $request->begin_year;
-        $licenses->finish_month = $request->finish_month;
-        $licenses->finish_year  = $request->finish_year;
 
-        $licenses->monthlyValue = $request->monthlyValue;
-        $licenses->annualValue  = $request->annualValue;
+        $monthlyValue = $this->parseCurrencyValue($request->monthlyValue);
+        $annualValue  = $this->parseCurrencyValue($request->annualValue);
+        $monthsTotal = $this->calculateBillingMonths(
+            $request->billing_frequency,
+            (int) $request->begin_month,
+            (int) $request->begin_year,
+            $request->finish_month ? (int) $request->finish_month : null,
+            $request->finish_year ? (int) $request->finish_year : null
+        );
+        $billingStart = Carbon::create((int) $request->begin_year, (int) $request->begin_month, 1);
+        $billingEnd = $this->resolveBillingEnd(
+            (int) $request->begin_month,
+            (int) $request->begin_year,
+            $request->finish_month ? (int) $request->finish_month : null,
+            $request->finish_year ? (int) $request->finish_year : null,
+            $monthsTotal
+        );
+
+        $duplicate = $this->findOverlappingLicense((int) $request->commercialName, $billingStart, $billingEnd, (int) $licenses->id);
+        if ($duplicate) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors([
+                    'commercialName' => $this->duplicateLicenseMessage($duplicate, $billingStart, $billingEnd),
+                ]);
+        }
+
+        $subTotal = $monthlyValue ?: ($annualValue ? round($annualValue / $monthsTotal, 2) : 0);
+        if ($annualValue <= 0 && $subTotal > 0) {
+            $annualValue = round($subTotal * $monthsTotal, 2);
+        }
+
+        $licenses->finish_month = $billingEnd->month;
+        $licenses->finish_year  = $billingEnd->year;
+        $licenses->monthlyValue = $this->formatCurrencyValue($subTotal);
+        $licenses->annualValue  = $this->formatCurrencyValue($annualValue);
         $licenses->status       = $request->status;
         $licenses->category     = $request->category;
         $licenses->subcategory  = $request->subcategory;
