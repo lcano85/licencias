@@ -93,6 +93,16 @@
                                 <option value="4">{{ __('Expired') }}</option>
                             </select>
                         </div>
+                        <div class="col-md-2">
+                            <label class="form-label">{{ __('Expiration') }}</label>
+                            <select id="expirationFilter" class="form-select form-select-sm">
+                                <option value="">{{ __('All') }}</option>
+                                <option value="valid">{{ __('Valid') }}</option>
+                                <option value="expired">{{ __('Expired') }}</option>
+                                <option value="expiring_30">{{ __('Expiring in 30 days') }}</option>
+                                <option value="no_end_date">{{ __('No end date') }}</option>
+                            </select>
+                        </div>
                         <div class="col-md-2 d-flex align-items-end">
                             <button type="button" class="btn btn-secondary btn-sm w-100" id="clearFilters">
                                 <i class="ri-refresh-line me-1"></i> {{ __('Clear Filters') }}
@@ -154,6 +164,7 @@
                     d.originFilter         = $('#originFilter').val();
                     d.frequencyFilter      = $('#frequencyFilter').val();
                     d.statusFilter         = $('#statusFilter').val();
+                    d.expirationFilter     = $('#expirationFilter').val();
                 }
             },
             language: window.codexDataTableLanguage(),
@@ -175,13 +186,13 @@
         });
         
         // Filter change events
-        $('#commercialNameFilter, #categoryFilter, #subcategoryFilter, #conceptFilter, #environmentFilter, #originFilter, #frequencyFilter, #statusFilter')
+        $('#commercialNameFilter, #categoryFilter, #subcategoryFilter, #conceptFilter, #environmentFilter, #originFilter, #frequencyFilter, #statusFilter, #expirationFilter')
             .on('change keyup', function () { table.ajax.reload(); });
 
         // Clear filters
         $('#clearFilters').on('click', function() {
             $('#commercialNameFilter, #categoryFilter, #subcategoryFilter, #conceptFilter').val('');
-            $('#environmentFilter, #originFilter, #frequencyFilter, #statusFilter').val('');
+            $('#environmentFilter, #originFilter, #frequencyFilter, #statusFilter, #expirationFilter').val('');
             table.ajax.reload();
         });
 

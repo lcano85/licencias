@@ -15,7 +15,7 @@ class AutoExpireLicenses extends Command
 
         $today = now()->toDateString();
         $count = LicensesAgreements::where('endDate', '<', $today)
-            ->where('status', '!=', 4)
+            ->where('status', 1)
             ->update(['status' => 4]);
 
         if ($count > 0) {
